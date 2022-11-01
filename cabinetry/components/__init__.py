@@ -1,4 +1,3 @@
-
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from ..base import Poseable, Position, RenderTree
@@ -31,11 +30,11 @@ class RectangularComponent(RenderTree, Poseable):
     def volume(self):
         return self.area * self.material.thickness
 
-    def getPvMesh(self):
+    def get_pv_mesh(self):
         xMin = 0; xMax = self.width
         yMin = 0; yMax = self.material.thickness
         zMin = 0; zMax = self.height
-        M = self.getFrameToBase()
+        M = self.get_frame_to_base()
 
         box = pv.Box((xMin, xMax, yMin, yMax, zMin, zMax), level=0, quads=False)
         box.transform(M)
@@ -63,13 +62,13 @@ class GridRowOrCol():
             self._size_type = val
     
     @staticmethod
-    def computeSizeAndPosition(RowsOrCols: list['GridRowOrCol'], total_space, spacing):
-        n = len(RowsOrCols)
+    def compute_size_and_position(rows_or_cols: list['GridRowOrCol'], total_space, spacing):
+        n = len(rows_or_cols)
         # remove spaces between RowsOrCols
         cell_space = total_space - (n-1)*spacing
         # Collect array of sizes and list of types
-        rc_sizes = np.array(list(map(lambda rc: rc.size, RowsOrCols)), dtype='float')
-        rc_types = list(map(lambda rc: rc.size_type, RowsOrCols))
+        rc_sizes = np.array(list(map(lambda rc: rc.size, rows_or_cols)), dtype='float')
+        rc_types = list(map(lambda rc: rc.size_type, rows_or_cols))
         # Identify indices with weighted type
         rc_weighted_id = np.array(list(map(lambda s: s == 'weighted',rc_types)), dtype='bool')
         # Remove fixed space from cell space
@@ -79,22 +78,22 @@ class GridRowOrCol():
         rc_proportions = rc_sizes[rc_weighted_id] / sum(rc_sizes[rc_weighted_id])
         rc_sizes[rc_weighted_id] = rc_proportions * weighted_space
 
-        return rc_sizes, RowsOrCols[0]._computeLinearPos(rc_sizes, spacing, total_space)
+        return rc_sizes, rows_or_cols[0]._compute_linear_pos(rc_sizes, spacing, total_space)
     
     @staticmethod
     @abstractmethod
-    def _computeLinearPos(sizes, spacing, total_space): pass
+    def _compute_linear_pos(sizes, spacing, total_space): pass
            
 class GridRow(GridRowOrCol):
     @staticmethod
-    def _computeLinearPos(row_sizes, spacing, total_space):
+    def _compute_linear_pos(row_sizes, spacing, total_space):
         # for rows, return linear position such that index 0 is at the far end
         linear_pos = total_space - (np.cumsum(row_sizes) + np.arange(0,len(row_sizes),1) * spacing)
         return linear_pos
 
 class GridCol(GridRowOrCol):
     @staticmethod
-    def _computeLinearPos(col_sizes, spacing, _):
+    def _compute_linear_pos(col_sizes, spacing, _):
         # for cols, return linear position such that index 0 is at left side
         linear_pos = np.arange(0,len(col_sizes),1) * spacing + np.concatenate(([0], np.cumsum(col_sizes[:-1])), axis=0)
         return linear_pos
@@ -144,7 +143,7 @@ class ComponentGrid(ComponentContainer):
         self.row_spacing = row_spacing
         self.column_spacing = column_spacing
 
-        self.constructCells()
+        self.construct_cells()
         
     def add_row(self, size_type, size):
         """Add a row to the bottom of the grid."""
@@ -154,7 +153,7 @@ class ComponentGrid(ComponentContainer):
         """Add a row to the right of the grid."""
         self.cols.append( GridCol(size_type, size) )
 
-    def constructCells(self):
+    def construct_cells(self):
         cells: list[GridCell] = []
         # Grid origin located at bottom left corner of padded region
         grid_pos_x = self.padding[0]
@@ -165,8 +164,8 @@ class ComponentGrid(ComponentContainer):
         self.grid_width = self.width - (self.padding[0] + self.padding[2])
 
         # Get row/col positions and sizes
-        row_sizes, row_pos = GridRow.computeSizeAndPosition(self.rows, self.grid_height, self.row_spacing)
-        col_sizes, col_pos = GridCol.computeSizeAndPosition(self.cols, self.grid_width, self.column_spacing)
+        row_sizes, row_pos = GridRow.compute_size_and_position(self.rows, self.grid_height, self.row_spacing)
+        col_sizes, col_pos = GridCol.compute_size_and_position(self.cols, self.grid_width, self.column_spacing)
         
         row_pos += grid_pos_y # account for bottom padding
         col_pos += grid_pos_x # account for left padding
@@ -228,10 +227,7 @@ class FaceFrame(ComponentGrid):
         self.material = material if material is not None else Material.HARDWOOD_3QTR
         self.color = color
 
-        
-        # self.constructComponents()
-
-    def constructTestCellComponents(self):
+    def construct_test_components(self):
         # \/\/ Testing Only \/\/
         # Use DFS to add RectangularComponents to lowest level GridCell in FaceFrame tree
         stack = self.cells.reshape(self.cells.size,).tolist()
@@ -254,7 +250,7 @@ class FaceFrame(ComponentGrid):
                 i += 1
         # /\/\ Testing Only /\/\
 
-    def constructComponents(self):
+    def construct_components(self):
         # DFS on to find FaceFrame components in FaceFrame tree
         # stack = self.cells.reshape(self.cells.size,).tolist()
         stack = [self]
@@ -263,9 +259,9 @@ class FaceFrame(ComponentGrid):
             if item.children: # not empty
                 stack.extend(item.children)
             if isinstance(item, FaceFrame):
-                item.constructRailsAndStiles()
+                item.construct_rails_and_stiles()
 
-    def constructRailsAndStiles(self):
+    def construct_rails_and_stiles(self):
         rail_anchors = (self.row_pos + self.row_sizes).tolist()
         rail_anchors.append(0)
         stile_anchors = (self.col_pos + self.col_sizes).tolist()

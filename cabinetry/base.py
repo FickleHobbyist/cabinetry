@@ -80,13 +80,13 @@ class Orientation:
     def to_tuple(self, order='xyz'):
         return tuple(getattr(self, f"r{ax}") for ax in order)
     
-    def inRadians(self):
+    def in_radians(self):
         if self.units == 'deg':
             return Orientation(*tuple(self.to_nparray() * pi/180))
         else:
             return copy.deepcopy(self)
 
-    def inDegrees(self):
+    def in_degrees(self):
         if self.units == 'rad':
             return Orientation(*tuple(self.to_nparray() * 180/pi))
         else:
@@ -105,25 +105,25 @@ class Poseable(TreeNode, ABC):
         self.position = position if position is not None else Position()
         self.orientation = orientation if orientation is not None else Orientation()
     
-    def getFrame(self):
+    def get_frame(self):
          # no zoom or shear
         Z = np.ones(3); S=np.zeros(3)
         # translate in parent frame
         T = self.position.to_nparray()
         # intrinsic rotation
         R = tform.euler.euler2mat(
-            *self.orientation.inRadians().to_tuple(order='zyx'),
+            *self.orientation.in_radians().to_tuple(order='zyx'),
              axes='rzyx')
         # Construct 4x4 homogenous transformation
         return tform.affines.compose(T,R,Z,S)
     
-    def getFrameToBase(self):
+    def get_frame_to_base(self):
         """Return a 4x4 homogenous transform representing the pose in
          the base coordinate frame (the most senior node in the tree)"""
         rootNode, route = self.find_root_node()
-        M = rootNode.getFrame()
+        M = rootNode.get_frame()
         for node in route:
-            Mi = node.getFrame()
+            Mi = node.get_frame()
             M = np.matmul(M, Mi)
         return M
 
@@ -153,14 +153,14 @@ class RenderTree(TreeNode):
         while Q: # not empty
             node : RenderTree = Q.pop()
             if node not in visited:
-                mesh = node.getPvMesh()
+                mesh = node.get_pv_mesh()
                 if mesh is not None:
                     p.add_mesh(mesh, color=node.color, show_edges=show_edges)
                 Q.extend(node.children)
                 visited.append(node)
         p.show()
 
-    def getPvMesh(self):
+    def get_pv_mesh(self):
         """Return pyvista mesh object or None.
         
         Subclasses should override this method to return appropriate geometry

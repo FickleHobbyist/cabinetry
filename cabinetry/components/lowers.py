@@ -2,7 +2,7 @@
 from ..base import Position, Orientation
 from . import FACE_FRAME_MATERIAL, FACE_FRAME_MEMBER_WIDTH, ComponentContainer, FaceFrame, RectangularComponent, get_faceframe_factory
 from ..materials import Material
-import numpy as np
+
 
 class LowerCabinetCase(ComponentContainer):
     TOEKICK_HEIGHT = 3.5  # TO_BOTTOM_OF FACEFRAME
@@ -20,24 +20,24 @@ class LowerCabinetCase(ComponentContainer):
         self.material = Material.PLY_3QTR
         self.color = clr
         
-        self.constructComponents()
+        self.construct_components()
         
-    def getPvMesh(self):
+    def get_pv_mesh(self):
         return None
 
-    def constructComponents(self) -> None:
+    def construct_components(self) -> None:
         # Top surface of bottom panel
-        self.bottomHeightAboveFloor = self.TOEKICK_HEIGHT + FACE_FRAME_MEMBER_WIDTH
-        boxDepth = self.CABINET_DEPTH - FACE_FRAME_MATERIAL.thickness
-        boxWidth_inside = self.width - 2*self.material.thickness
+        self.bottom_height_above_floor = self.TOEKICK_HEIGHT + FACE_FRAME_MEMBER_WIDTH
+        box_depth = self.CABINET_DEPTH - FACE_FRAME_MATERIAL.thickness
+        box_width_inside = self.width - 2*self.material.thickness
         
-        toekickCutoutHeight = self.bottomHeightAboveFloor - self.material.thickness - self.DADO_HEIGHT_ABOVE_TOEKICK_CUTOUT
-        baseBlockHeight = self.bottomHeightAboveFloor - self.material.thickness
+        toekick_cutout_height = self.bottom_height_above_floor - self.material.thickness - self.DADO_HEIGHT_ABOVE_TOEKICK_CUTOUT
+        base_block_height = self.bottom_height_above_floor - self.material.thickness
         
         self.add_child(RectangularComponent(
                         name='Left Side',
                         material=self.material,
-                        width=boxDepth,
+                        width=box_depth,
                         height=self.height,
                         position=Position(x=self.material.thickness,y=0,z=0),
                         orientation=Orientation(0,0,90),
@@ -47,7 +47,7 @@ class LowerCabinetCase(ComponentContainer):
         self.add_child(RectangularComponent(
                         name='Right Side',
                         material=self.material,
-                        width=boxDepth,
+                        width=box_depth,
                         height=self.height,
                         position=Position(x=self.width,y=0,z=0),
                         orientation=Orientation(0,0,90),
@@ -57,12 +57,12 @@ class LowerCabinetCase(ComponentContainer):
         self.add_child(RectangularComponent(
                         name='Bottom',
                         material=self.material,
-                        width = boxWidth_inside + 2*self.FLOOR_DADO_DEPTH,
-                        height=boxDepth,
+                        width = box_width_inside + 2*self.FLOOR_DADO_DEPTH,
+                        height=box_depth,
                         position=Position(
                             x=self.material.thickness-self.FLOOR_DADO_DEPTH,
                             y=0,
-                            z=self.bottomHeightAboveFloor
+                            z=self.bottom_height_above_floor
                             ),
                         orientation=Orientation(
                             rx=-90,
@@ -76,7 +76,7 @@ class LowerCabinetCase(ComponentContainer):
                         name='Toekick',
                         material=self.material,
                         width= self.width,
-                        height=toekickCutoutHeight,
+                        height=toekick_cutout_height,
                         position=Position(
                             x=0,
                             y=self.TOEKICK_DEPTH,
@@ -93,8 +93,8 @@ class LowerCabinetCase(ComponentContainer):
         self.add_child(RectangularComponent(
                         name='Base Block - Front',
                         material = self.material,
-                        width = boxWidth_inside,
-                        height= baseBlockHeight,
+                        width = box_width_inside,
+                        height= base_block_height,
                         position=Position(
                             x=self.material.thickness,
                             y=self.TOEKICK_DEPTH+self.material.thickness,
@@ -111,11 +111,11 @@ class LowerCabinetCase(ComponentContainer):
         self.add_child(RectangularComponent(
                         name='Base Block - Rear',
                         material = self.material,
-                        width = boxWidth_inside,
-                        height= baseBlockHeight,
+                        width = box_width_inside,
+                        height= base_block_height,
                         position=Position(
                             x=self.material.thickness,
-                            y=boxDepth-self.material.thickness,
+                            y=box_depth-self.material.thickness,
                             z=0
                             ),
                         orientation=Orientation(
@@ -129,7 +129,7 @@ class LowerCabinetCase(ComponentContainer):
         self.add_child(RectangularComponent(
                         name='Top Stretcher - Front',
                         material = self.material,
-                        width = boxWidth_inside,
+                        width = box_width_inside,
                         height= self.STRETCHER_WIDTH,
                         position=Position(
                             x=self.material.thickness,
@@ -147,11 +147,11 @@ class LowerCabinetCase(ComponentContainer):
         self.add_child(RectangularComponent(
                         name='Top Stretcher - Rear (Horiz)',
                         material = self.material,
-                        width = boxWidth_inside,
+                        width = box_width_inside,
                         height= self.STRETCHER_WIDTH,
                         position=Position(
                             x=self.material.thickness,
-                            y=boxDepth-self.STRETCHER_WIDTH,
+                            y=box_depth-self.STRETCHER_WIDTH,
                             z=self.height
                             ),
                         orientation=Orientation(
@@ -165,11 +165,11 @@ class LowerCabinetCase(ComponentContainer):
         self.add_child(RectangularComponent(
                         name='Top Stretcher - Rear (Vert)',
                         material = self.material,
-                        width = boxWidth_inside,
+                        width = box_width_inside,
                         height= self.STRETCHER_WIDTH,
                         position=Position(
                             x=self.material.thickness,
-                            y=boxDepth - self.material.thickness,
+                            y=box_depth - self.material.thickness,
                             z=self.height - (self.material.thickness + self.STRETCHER_WIDTH)
                             ),
                         orientation=Orientation(
@@ -199,9 +199,9 @@ class LowerCabinet(ComponentContainer):
         self.height = height
         self.frame_type = frame_type
         self.frame_args = frame_args
-        self.constructComponents()
+        self.construct_components()
 
-    def constructComponents(self):
+    def construct_components(self):
         self.case = LowerCabinetCase(
             width=self.width,
             height=self.height,
@@ -218,7 +218,7 @@ class LowerCabinet(ComponentContainer):
 
         self.face: FaceFrame = ff_factory(
             box_width = self.width,
-            box_height = self.height - (self.case.bottomHeightAboveFloor-self.case.material.thickness),
+            box_height = self.height - (self.case.bottom_height_above_floor-self.case.material.thickness),
             box_material = self.case.material,
             side_overhang = faceframe_side_overhang,
             material = Material.HARDWOOD_3QTR,
@@ -226,8 +226,8 @@ class LowerCabinet(ComponentContainer):
         )
         self.face.position.z = self.case.TOEKICK_HEIGHT
 
-        self.face.constructComponents()
-        self.face.constructTestCellComponents()
+        self.face.construct_components()
+        self.face.construct_test_components()
 
         self.add_child(self.case)
         self.add_child(self.face)
