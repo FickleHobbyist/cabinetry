@@ -152,7 +152,9 @@ class RenderTree(TreeNode):
         of the node on which render() is called.
         """
         p = pv.Plotter()
-        p.add_axes_at_origin(x_color='red', y_color='green', z_color='blue')
+        p.add_axes()
+        p.add_axes_at_origin(x_color='red', y_color='green', z_color='blue',
+                            labels_off=True)
 
         # Render via Breadth-First Search of TreeNode Children
         Q = self.children
