@@ -136,6 +136,32 @@ class Poseable(TreeNode, ABC):
         return M
 
 
+_PT_LIST = []
+
+
+class _PointGetter():
+
+    @staticmethod
+    def get_point_list():
+        return _PT_LIST
+
+    @staticmethod
+    def reset_point_list():
+        _PT_LIST.clear()
+
+
+def _point_click_callback(point):
+    PT_LIST = _PointGetter.get_point_list()
+    distMsg = ''
+    PT_LIST.append(point)
+    print(f"len pt list = {len(PT_LIST)}")
+    if len(PT_LIST) == 2:
+        dist = np.linalg.norm(PT_LIST[1] - PT_LIST[0])
+        distMsg = f", dist to prev pt = {dist}"
+        _PointGetter.reset_point_list()
+    print(f"picked point: {point}{distMsg}")
+
+
 class RenderTree(TreeNode):
     color: pv.color_like
 
@@ -154,7 +180,7 @@ class RenderTree(TreeNode):
         p = pv.Plotter()
         p.add_axes()
         p.add_axes_at_origin(x_color='red', y_color='green', z_color='blue',
-                            labels_off=True)
+                             labels_off=True)
 
         # Render via Breadth-First Search of TreeNode Children
         Q = self.children
@@ -168,6 +194,9 @@ class RenderTree(TreeNode):
                     p.add_mesh(mesh, color=node.color, show_edges=show_edges)
                 Q.extend(node.children)
                 visited.append(node)
+
+        p.enable_point_picking(
+            callback=_point_click_callback, left_clicking=True, pickable_window=False)
         p.show()
 
     def get_pv_mesh(self):
