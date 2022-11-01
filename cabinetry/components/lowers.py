@@ -1,5 +1,4 @@
 """Module containing concrete components from which to build cabinets"""
-from webbrowser import get
 from ..base import Position, Orientation
 from . import FACE_FRAME_MATERIAL, FACE_FRAME_MEMBER_WIDTH, ComponentContainer, FaceFrame, RectangularComponent, get_faceframe_factory
 from ..materials import Material
