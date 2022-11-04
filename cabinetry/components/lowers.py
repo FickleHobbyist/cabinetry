@@ -1,8 +1,7 @@
 """Module containing concrete components from which to build cabinets"""
 from ..base import Position, Orientation
-from . import FACE_FRAME_MATERIAL, FACE_FRAME_MEMBER_WIDTH, ComponentContainer, FaceFrame, RectangularComponent, get_faceframe_factory
-from ..materials import Material
-
+from . import ComponentContainer, FaceFrame, RectangularComponent, get_faceframe_factory
+from ..config import Config
 
 class LowerCabinetCase(ComponentContainer):
     TOEKICK_HEIGHT = 3.5  # TO_BOTTOM_OF FACEFRAME
@@ -17,7 +16,7 @@ class LowerCabinetCase(ComponentContainer):
         super(LowerCabinetCase, self).__init__(name=name, color=clr, **kwargs)
         self.width = width
         self.height = height
-        self.material = Material.PLY_3QTR
+        self.material = Config.LOWERS_CASE_MATERIAL
         self.color = clr
 
         self.construct_components()
@@ -27,8 +26,8 @@ class LowerCabinetCase(ComponentContainer):
 
     def construct_components(self) -> None:
         # Top surface of bottom panel
-        self.bottom_height_above_floor = self.TOEKICK_HEIGHT + FACE_FRAME_MEMBER_WIDTH
-        box_depth = self.CABINET_DEPTH - FACE_FRAME_MATERIAL.thickness
+        self.bottom_height_above_floor = self.TOEKICK_HEIGHT + Config.FACE_FRAME_MEMBER_WIDTH
+        box_depth = self.CABINET_DEPTH - Config.FACE_FRAME_MATERIAL.thickness
         box_width_inside = self.width - 2*self.material.thickness
 
         toekick_cutout_height = (self.bottom_height_above_floor -
@@ -218,12 +217,12 @@ class LowerCabinet(ComponentContainer):
         self.case = LowerCabinetCase(
             width=self.width,
             height=self.height,
+            color=Config.CABINET_CASE_COLOR,
             position=Position(  # x=width, y=thickness, z=height
                 x=0,
-                y=FACE_FRAME_MATERIAL.thickness,
+                y=Config.FACE_FRAME_MATERIAL.thickness,
                 z=0,
             ),
-            color='#e3c176',  # https://g.co/kgs/LzRdrt
         )
         faceframe_side_overhang = 1/8
 
@@ -235,13 +234,12 @@ class LowerCabinet(ComponentContainer):
                         (self.case.bottom_height_above_floor-self.case.material.thickness)),
             box_material=self.case.material,
             side_overhang=faceframe_side_overhang,
-            material=Material.HARDWOOD_3QTR,
             **self.frame_args,
         )
         self.face.position.z = self.case.TOEKICK_HEIGHT
 
         self.face.construct_components()
-        self.face.construct_test_components()
+        # self.face.construct_test_components()
 
         self.add_child(self.case)
         self.add_child(self.face)

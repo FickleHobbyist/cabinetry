@@ -1,13 +1,10 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
+from ..config import Config  # .. refers to cabinetry top level package
 from ..base import Poseable, Position, RenderTree
 from ..materials import Material
 import pyvista as pv
 import numpy as np
-
-
-FACE_FRAME_MEMBER_WIDTH = 1.5
-FACE_FRAME_MATERIAL = Material.HARDWOOD_3QTR
 
 
 class ComponentContainer(RenderTree, Poseable):
@@ -17,7 +14,7 @@ class ComponentContainer(RenderTree, Poseable):
 
 
 class RectangularComponent(RenderTree, Poseable):
-    def __init__(self, width: float, height: float, material: Material = None, **kwargs) -> None:
+    def __init__(self, width: float, height: float, material: Material, **kwargs) -> None:
         super(RectangularComponent, self).__init__(**kwargs)
         self.width: float = width
         self.height: float = height
@@ -127,7 +124,10 @@ class GridCell(ComponentContainer):
 
 
 class ComponentGrid(ComponentContainer):
-    """Manages a structured grid of GridCell component containers."""
+    """Constructs a structured grid of GridCell component containers.
+    
+    Currently designed to be immutable once constructed.
+    """
 
     def __init__(self,
                  width: float,
@@ -224,11 +224,10 @@ class FaceFrame(ComponentGrid):
                  box_width: float,
                  box_height: float,
                  box_material: Material,
-                 width_rail: float = 1.5,
-                 width_stile: float = 1.5,
+                 width_rail: float = Config.FACE_FRAME_MEMBER_WIDTH,
+                 width_stile: float = Config.FACE_FRAME_MEMBER_WIDTH,
                  side_overhang: float = 1/8,
-                 material: Material = None,
-                 color: pv.color_like = '#7a5f23',  # https://g.co/kgs/VYZbAv
+                 color: pv.color_like = Config.FACE_FRAME_COLOR,
                  *args, **kwargs):
 
         width = kwargs.pop('width', box_width+2*side_overhang)
@@ -246,7 +245,7 @@ class FaceFrame(ComponentGrid):
         self.width_rail = width_rail
         self.width_stile = width_stile
         self.side_overhang = side_overhang
-        self.material = material if material is not None else Material.HARDWOOD_3QTR
+        self.material = Config.FACE_FRAME_MATERIAL
         self.color = color
 
     def construct_test_components(self):
@@ -339,8 +338,11 @@ class FaceFrame(ComponentGrid):
                         height=self.width_rail,
                         material=self.material,
                         # x=width, y=thickness, z=height
-                        position=Position(x=cell.position.x,
-                                          y=0, z=cell.position.z+cell.height),
+                        position=Position(
+                            x=cell.position.x,
+                            y=0,
+                            z=cell.position.z+cell.height
+                        ),
                         color=self.color,
                     )
                 )
@@ -351,7 +353,6 @@ def _N_Drawer_faceframe(
     box_height,
     box_material,
     side_overhang,
-    material,
     drawer_dist: list = None,
     dist_type: list[str] = None,
 ) -> FaceFrame:
@@ -361,10 +362,7 @@ def _N_Drawer_faceframe(
         box_width=box_width,
         box_height=box_height,
         box_material=box_material,
-        width_rail=FACE_FRAME_MEMBER_WIDTH,
-        width_stile=FACE_FRAME_MEMBER_WIDTH,
         side_overhang=side_overhang,
-        material=material,
         row_dist=np.array(drawer_dist),
         row_type=dist_type,
         col_dist=np.array([1]),
@@ -384,7 +382,6 @@ def _N_Door_faceframe(
     box_height,
     box_material,
     side_overhang,
-    material,
     door_dist: list = None,
     dist_type: list[str] = None,
 ) -> FaceFrame:
@@ -394,10 +391,7 @@ def _N_Door_faceframe(
         box_width=box_width,
         box_height=box_height,
         box_material=box_material,
-        width_rail=FACE_FRAME_MEMBER_WIDTH,
-        width_stile=FACE_FRAME_MEMBER_WIDTH,
         side_overhang=side_overhang,
-        material=material,
         row_dist=np.array([1]),
         row_type=['weighted'],
         col_dist=door_dist,
@@ -417,7 +411,6 @@ def _1_Drawer_2_Door_faceframe(
     box_height,
     box_material,
     side_overhang,
-    material,
     drawer_dist: list = None,
     dist_type: list[str] = None,
 ) -> FaceFrame:
@@ -428,7 +421,6 @@ def _1_Drawer_2_Door_faceframe(
         box_height,
         box_material,
         side_overhang,
-        material,
         drawer_dist,
         dist_type,
     )
@@ -439,7 +431,6 @@ def _1_Drawer_2_Door_faceframe(
             box_height=subcell.height,
             box_material=box_material,
             side_overhang=0,
-            material=material,
             width=face.grid_width,
             height=subcell.height,
             padding=(0,)*4,

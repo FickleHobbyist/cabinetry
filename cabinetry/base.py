@@ -50,6 +50,7 @@ class TreeNode(ABC):
 
 @dataclass
 class Position:
+    """Component position. x=width, y=thickness, z=height"""
     x: float = 0
     y: float = 0
     z: float = 0
@@ -165,7 +166,7 @@ def _point_click_callback(point):
 class RenderTree(TreeNode):
     color: pv.color_like
 
-    def __init__(self, color: pv.color_like, *args, **kwargs) -> None:
+    def __init__(self, color: pv.color_like = 'white', *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.color = color
 
