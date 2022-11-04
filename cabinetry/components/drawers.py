@@ -33,7 +33,7 @@ class DrawerFace(FaceFrame):
                 width=cell.width + 2*inset_dado_depth,
                 height=cell.height + 2*inset_dado_depth,
                 material=Config.DRAWER_FACE_INSET_MATERIAL,
-                color=Config.FACE_FRAME_COLOR,
+                color=Config.DRAWER_FACE_INSET_COLOR,
                 position=Position(
                     x=-inset_thickness,
                     y=inset_depth,
@@ -47,7 +47,7 @@ class DrawerFace(FaceFrame):
                 width=cell.width,
                 height=cell.height,
                 material=Config.DRAWER_FACE_INSET_MATERIAL,
-                color=Config.FACE_FRAME_COLOR,
+                color=Config.DRAWER_FACE_INSET_COLOR,
                 position=Position(
                     x=0,
                     y=inset_depth+inset_thickness,

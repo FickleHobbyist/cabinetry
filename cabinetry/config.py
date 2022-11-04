@@ -8,8 +8,9 @@ class Config:
     OVERLAY_GAP: float = 1/4
     MAX_DRAWER_BOX_HEIGHT: float = 5.
     DRAWER_FACE_INSET_MATERIAL = Material.PLY_1_4
-    # FACE_FRAME_COLOR: str = '#faf0e8'
-    FACE_FRAME_COLOR: str = '#6088ab'
-    CABINET_CASE_COLOR: str = '#6088ab'
-    DRAWER_BOX_COLOR: str = '#ab8e60'
+    DRAWER_FACE_INSET_COLOR: str = '#e6cd83'
+    DRAWER_BOX_COLOR: str = '#e6cd83'
+    FACE_FRAME_COLOR: str = '#6e583b'
+    CABINET_CASE_COLOR: str = '#e6cd83'
+    
     
