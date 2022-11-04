@@ -12,4 +12,5 @@ This repository contains geometric representations of household cabinetry, which
 - [ ] Establish method for generating a bill of materials
     - For rough estimating, compute total area and volume in each material category.
     - Use fudge factor on total ply area / (48x96) for number of sheets required.
-    - Use total volume to estimate board feet of hardwood type materials required plus fudge factor for waste
+    - Use total volume to estimate board feet of hardwood type materials required plus fudge factor for waste.
+- [ ] Adjust drawer box components to account for length increment due to rabbets & dadoes.
