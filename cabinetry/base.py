@@ -1,7 +1,8 @@
 """Module containing infrastructure to support component trees"""
 from dataclasses import dataclass, field
-from abc import ABC, abstractmethod
+from abc import ABC
 from math import pi
+from warnings import warn
 import transforms3d as tform
 import pyvista as pv
 import numpy as np
@@ -9,29 +10,46 @@ import copy
 
 
 class TreeNode(ABC):
-    """Generic tree node."""    
+    """Generic tree node."""
     name: str
     parent = None
     children = None
 
-    def __init__(self, name='root', children=None, *args, **kwargs):
+    def __init__(self, name: str = 'root', children: list['TreeNode'] = None, *args, **kwargs):
         super(TreeNode, self).__init__(*args, **kwargs)
-        self.name = name
-        self.parent = None
-        self.children = []
+        self.name: str = name
+        self.parent: 'TreeNode' = None
+        self.children: list['TreeNode'] = []
         if children is not None:
             for child in children:
                 self.add_child(child)
+
+    def clear_children(self):
+        """Remove all children"""
+        self.children.clear()
 
     def add_child(self, node: 'TreeNode'):
         """Add a child to the parent object
 
         :param node: Child node
         :type node: TreeNode
-        """        
+        """
         assert isinstance(node, TreeNode)
+        if node.parent is not None:
+            warn("Child node was added but the provided node already had a parent. \
+                This could be a sign of poorly configured object trees. \
+                The child will be removed from prior parent.")
+            node.parent.remove_child(node)
         self.children.append(node)
         node.parent = self
+
+    def remove_child(self, node: 'TreeNode'):
+        """Remove a child from the parent object
+
+        :param node: Child node
+        :type node: TreeNode
+        """
+        self.children.remove(node)
 
     def find_root_node(self) -> tuple['TreeNode', list['TreeNode']]:
         """Traverse the Tree to find the root node. Return path root node handle
@@ -45,11 +63,12 @@ class TreeNode(ABC):
 
         :return: route from root+1 to self
         :rtype: list[TreeNode]
-        """        
+        """
         node = self
         route = []
         while node.parent is not None:
-            route.insert(0, node)  # prepend list so list is ordered [root+1 -> self]
+            # prepend list so list is ordered [root+1 -> self]
+            route.insert(0, node)
             node = node.parent
         return node, route
 
@@ -62,7 +81,7 @@ class TreeNode(ABC):
 
 @dataclass
 class Position:
-    """Component position relative to parent frame. x=width, y=thickness, z=height""" 
+    """Component position relative to parent frame. x=width, y=thickness, z=height"""
     x: float = 0
     y: float = 0
     z: float = 0
@@ -194,10 +213,10 @@ class _PointGetter():
 
 def _point_click_callback(point):
     """Simple callback to print point coordinates and distance between last 2 points
-    
+
     The PyVista renderer does not seem to have access to module scoped variables, so
     a simple _PointGetter class is utilized to retrieve a handle to a module scope list.
-    """    
+    """
     PT_LIST = _PointGetter.get_point_list()
     distMsg = ''
     PT_LIST.append(point)
