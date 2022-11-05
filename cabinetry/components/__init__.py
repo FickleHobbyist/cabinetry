@@ -8,27 +8,52 @@ import numpy as np
 
 
 class ComponentContainer(RenderTree, Poseable):
+    """Useful for categorizing groups of components
+
+    :param width: width of component
+    :type width: float
+    :param height: height of component
+    :type height: float
+    :param material: Material class of component. See cabinetry.materials.Material.
+    :type material: Material
+    :return: Constructed object
+    :rtype: RectangularComponent
+    """
+
     def __init__(self, *args, **kwargs):
         clr = kwargs.pop('color', None)
         super(ComponentContainer, self).__init__(color=clr, *args, **kwargs)
 
 
 class RectangularComponent(RenderTree, Poseable):
-    def __init__(self, width: float, height: float, material: Material, **kwargs) -> None:
+    """Low level component which produces renderable geometry"""
+
+    def __init__(self, width: float, height: float, material: Material, **kwargs) -> 'RectangularComponent':
+        """Class constructor"""
         super(RectangularComponent, self).__init__(**kwargs)
         self.width: float = width
         self.height: float = height
         self.material: Material = material
 
     @property
-    def area(self):
+    def area(self) -> float:
+        """area = width * height
+
+        :return: Area of large faces of component
+        :rtype: float
+        """
         return self.width * self.height
 
     @property
-    def volume(self):
+    def volume(self) -> float:
+        """volume = area * material.thickness
+
+        :return: Volume of component
+        :rtype: float
+        """
         return self.area * self.material.thickness
 
-    def get_pv_mesh(self):
+    def get_pv_mesh(self) -> pv.PolyData:
         xMin = 0
         xMax = self.width
         yMin = 0
@@ -125,7 +150,7 @@ class GridCell(ComponentContainer):
 
 class ComponentGrid(ComponentContainer):
     """Constructs a structured grid of GridCell component containers.
-    
+
     Currently designed to be immutable once constructed.
     """
 

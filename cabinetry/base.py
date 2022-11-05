@@ -8,15 +8,11 @@ import numpy as np
 import copy
 
 
-pv.global_theme.axes.show = True
-
-
 class TreeNode(ABC):
+    """Generic tree node."""    
     name: str
     parent = None
     children = None
-
-    "Generic tree node."
 
     def __init__(self, name='root', children=None, *args, **kwargs):
         super(TreeNode, self).__init__(*args, **kwargs)
@@ -27,17 +23,33 @@ class TreeNode(ABC):
             for child in children:
                 self.add_child(child)
 
-    def add_child(self, node):
+    def add_child(self, node: 'TreeNode'):
+        """Add a child to the parent object
+
+        :param node: Child node
+        :type node: TreeNode
+        """        
         assert isinstance(node, TreeNode)
         self.children.append(node)
         node.parent = self
 
     def find_root_node(self) -> tuple['TreeNode', list['TreeNode']]:
-        """Traverse the Tree to find the root node. Return path root node handle and path from root to self."""
+        """Traverse the Tree to find the root node. Return path root node handle
+        and path from root+1 to self.
+
+        For nodes in order of ROOT -> N1 -> N2 -> N3, "node" is a handle to ROOT,
+        and "route" is a list [N1, N2, N3]
+
+        :return: node, most senior element on the object tree
+        :rtype: TreeNode
+
+        :return: route from root+1 to self
+        :rtype: list[TreeNode]
+        """        
         node = self
         route = []
         while node.parent is not None:
-            route.insert(0, node)  # prepend list so we end at root node
+            route.insert(0, node)  # prepend list so list is ordered [root+1 -> self]
             node = node.parent
         return node, route
 
@@ -50,17 +62,23 @@ class TreeNode(ABC):
 
 @dataclass
 class Position:
-    """Component position. x=width, y=thickness, z=height"""
+    """Component position relative to parent frame. x=width, y=thickness, z=height""" 
     x: float = 0
     y: float = 0
     z: float = 0
 
-    def to_nparray(self):
+    def to_nparray(self) -> np.ndarray:
+        """Convert to numpy ndarray
+
+        :return: (3,) numpy ndarray object
+        :rtype: np.ndarray
+        """
         return np.array([self.x, self.y, self.z])
 
 
 @dataclass(init=True, repr=True)
 class Orientation:
+    """Component orientation relative to parent frame. Default units are degrees."""
     rx: float = 0
     ry: float = 0
     rz: float = 0
@@ -69,6 +87,11 @@ class Orientation:
 
     @property
     def units(self) -> str:
+        """'deg' or 'rad'
+
+        :return: Current units
+        :rtype: str
+        """
         return self._units
 
     @units.setter
@@ -108,12 +131,18 @@ class Poseable(TreeNode, ABC):
     which locate the object relative to its parent and some base frame.
     """
 
-    def __init__(self, position=None, orientation=None, *args, **kwargs):
+    def __init__(self, position=None, orientation=None, *args, **kwargs) -> 'Poseable':
         super(Poseable, self).__init__(*args, **kwargs)
         self.position = position if position is not None else Position()
         self.orientation = orientation if orientation is not None else Orientation()
 
-    def get_frame(self):
+    def get_frame(self) -> np.ndarray:
+        """Return a 4x4 homogenous transform representing the pose in
+         the parent coordinate frame
+
+        :return: 4x4 homogenous transformation matrix
+        :rtype: np.ndarray
+        """
         # no zoom or shear
         Z = np.ones(3)
         S = np.zeros(3)
@@ -126,9 +155,20 @@ class Poseable(TreeNode, ABC):
         # Construct 4x4 homogenous transformation
         return tform.affines.compose(T, R, Z, S)
 
-    def get_frame_to_base(self):
+    def get_frame_to_base(self) -> np.ndarray:
         """Return a 4x4 homogenous transform representing the pose in
-         the base coordinate frame (the most senior node in the tree)"""
+         the base coordinate frame (the most senior node in the tree)
+
+         For a sample tree of [N0, N1, N2, N3] with homogenous transformation
+         matrices [M0, M1, M2, M3], the final matrix representing the pose of
+         N3 in the frame of N0 is M = M0 x M1 x M2 x M3.
+
+         The last few slides of the following PDF provide reasonable visualization.
+         https://www.cs.cmu.edu/~16311/current/schedule/ppp/Lec17-FK.pdf 
+
+        :return: 4x4 homogenous transformation matrix
+        :rtype: np.ndarray
+        """
         rootNode, route = self.find_root_node()
         M = rootNode.get_frame()
         for node in route:
@@ -141,6 +181,7 @@ _PT_LIST = []
 
 
 class _PointGetter():
+    """Utility class for point click callback on pv.Renderer"""
 
     @staticmethod
     def get_point_list():
@@ -152,6 +193,11 @@ class _PointGetter():
 
 
 def _point_click_callback(point):
+    """Simple callback to print point coordinates and distance between last 2 points
+    
+    The PyVista renderer does not seem to have access to module scoped variables, so
+    a simple _PointGetter class is utilized to retrieve a handle to a module scope list.
+    """    
     PT_LIST = _PointGetter.get_point_list()
     distMsg = ''
     PT_LIST.append(point)
@@ -164,9 +210,10 @@ def _point_click_callback(point):
 
 
 class RenderTree(TreeNode):
+    """Superclass providing default functionality for rendering all items on a TreeNode object tree"""
     color: pv.color_like
 
-    def __init__(self, color: pv.color_like = 'white', *args, **kwargs) -> None:
+    def __init__(self, color: pv.color_like = 'white', *args, **kwargs) -> 'RenderTree':
         super().__init__(*args, **kwargs)
         self.color = color
 

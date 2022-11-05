@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class Material(Enum):
+    """Simple enumeration class representing common cabinet material types and thicknesses"""
     PLY_3_4 = 23 / 32
     PLY_5_8 = 19 / 32
     PLY_1_2 = 15 / 32

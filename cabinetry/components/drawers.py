@@ -6,27 +6,51 @@ import pyvista as pv
 import numpy as np
 
 
-class DrawerFace(FaceFrame):
+class ShakerDrawerFace(FaceFrame):
+    """A simple shaker style drawer face
+
+    :param FaceFrame: _description_
+    :type FaceFrame: _type_
+    """
+
     def __init__(self,
                  opening_width: float,
                  opening_height: float,
                  width_rail: float = 2.0,
                  width_stile: float = 2.0,
-                 color: pv.color_like = Config.FACE_FRAME_COLOR,
-                 *args, **kwargs):
-        self.top_bottom_overlay = 0.5 * \
-            (Config.FACE_FRAME_MEMBER_WIDTH - Config.OVERLAY_GAP)
-        self.side_overlay = Config.FACE_FRAME_MEMBER_WIDTH - 0.5*Config.OVERLAY_GAP    
+                 *args, **kwargs) -> 'ShakerDrawerFace':
+        """Instantiate a ShakerDrawerFace
+
+        :param opening_width: Width of opening in which the drawer will fit
+        :type opening_width: float
+        :param opening_height: Height of opening in which the drawer will fit
+        :type opening_height: float
+        :param width_rail: Width of horizontal rail bordering the inset panel, defaults to 2.0
+        :type width_rail: float, optional
+        :param width_stile: Height of vertical stile bordering the inset panel, defaults to 2.0
+        :type width_stile: float, optional
+        :return: Constructed object
+        :rtype: ShakerDrawerFace
+        """        
+
+        self.top_bottom_overlay = (
+            0.5 * (Config.FACE_FRAME_MEMBER_WIDTH - Config.OVERLAY_GAP))
+        self.side_overlay = Config.FACE_FRAME_MEMBER_WIDTH - 0.5*Config.OVERLAY_GAP
         super().__init__(box_width=0, box_height=0, box_material=Material.PLY_1_2,
                          width_rail=width_rail, width_stile=width_stile,
                          width=(opening_width+2*self.side_overlay),
                          height=opening_height+2*self.top_bottom_overlay,
-                         color=color, *args, **kwargs)
+                         *args, **kwargs)
 
+        self.construct_components()
+
+    def construct_components(self):
+        """Generate renderable components for the drawer face."""
+        super().construct_components()
         inset_thickness = Config.DRAWER_FACE_INSET_MATERIAL.thickness
         inset_dado_depth = inset_thickness
         inset_depth = Config.FACE_FRAME_MATERIAL.thickness - 2*inset_thickness
-        cell = self.cells[0,0]
+        cell = self.cells[0, 0]
         cell.add_child(
             RectangularComponent(
                 name='Drawer Face Inset (Dadoed)',
@@ -55,13 +79,19 @@ class DrawerFace(FaceFrame):
                 )
             )
         )
-        self.construct_components()
+
 
 class BlumDrawer(ComponentContainer):
     """Drawer based on instructions for Blum TANDEM Plus BLUMOTION Drawer Slides
 
     See https://www.blum.com/file/tdm563f_ma_dok_bus?country=us&language=en
-    """
+
+    :param ComponentContainer: _description_
+    :type ComponentContainer: _type_
+    :raises ValueError: Box height may be no larger than (opening height - 25/32)
+    :return: Constructed drawer object.
+    :rtype: BlumDrawer
+    """    
     DRAWER_BOTTOM_RECESS = 0.5
     DRAWER_HEIGHT_ABOVE_OPENING = 9/16
 
@@ -83,7 +113,8 @@ class BlumDrawer(ComponentContainer):
             raise ValueError(
                 f"box_height of {self.box_height} too large. Value must be <= (opening_height - 25/32)")
         else:
-            self.box_height = min(Config.MAX_DRAWER_BOX_HEIGHT, self.box_height)
+            self.box_height = min(
+                Config.MAX_DRAWER_BOX_HEIGHT, self.box_height)
 
         self.construct_components()
 
@@ -216,7 +247,7 @@ class BlumDrawer(ComponentContainer):
                 ),
             )
         )
-        face = DrawerFace(
+        face = ShakerDrawerFace(
             name='Drawer Face',
             opening_width=self.opening_width,
             opening_height=self.opening_height,

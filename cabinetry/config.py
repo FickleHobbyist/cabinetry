@@ -1,6 +1,7 @@
 from .materials import Material
 
 class Config:
+    """Configuration class defining common object attributes"""
     LOWERS_DEPTH: float = 24.
     LOWERS_CASE_MATERIAL = Material.PLY_3_4
     FACE_FRAME_MEMBER_WIDTH = 1.5
