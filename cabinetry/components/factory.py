@@ -70,9 +70,9 @@ def _N_Door_faceframe(
 
     hinge_sides.append('right')
 
-    hinge_stiles = ['double']
-    hinge_stiles.extend(['single']*(nDoors-2))
-    hinge_stiles.append('double')
+    hinge_factors = ['double']
+    hinge_factors.extend(['single']*(nDoors-2))
+    hinge_factors.append('double')
 
     face = FaceFrame(
         box_width=box_width,
@@ -91,11 +91,11 @@ def _N_Door_faceframe(
         *args, **kwargs,
     )
     cells = face.cells.reshape(face.cells.size,).tolist()
-    for cell, hinge_side, hinge_stile in zip(cells, hinge_sides, hinge_stiles):
+    for cell, hinge_side, hinge_factor in zip(cells, hinge_sides, hinge_factors):
         cell.add_child(
             ShakerDoor(
                 hinge_side=hinge_side,
-                hinge_stile=hinge_stile,
+                hinge_stile_factor=hinge_factor,
                 opening_width=cell.width,
                 opening_height=cell.height,
             )
