@@ -1,4 +1,7 @@
 from ..config import Config
+from ..components import RectangularComponent
+from ..materials import Material
+from . import Position
 from . import ShakerFramedPanel
 
 
@@ -40,14 +43,36 @@ class ShakerDoor(ShakerFramedPanel):
         else:
             other_overlay = large_overlay
 
+        pull_width = 1
+        pull_height = 1
         match hinge_side:
             case 'left':
                 super().__init__(left_overlay=hinge_side_overlay,
                                  right_overlay=other_overlay,
                                  *args, **kwargs)
+                hinge_pos = Position(
+                    x=self.width - 0.5*(self.padding[2] + pull_width), # pull on right
+                    y=-self.material.thickness,
+                    z=0.5*(self.height - pull_height),
+                )
             case 'right':
                 super().__init__(left_overlay=other_overlay,
                                  right_overlay=hinge_side_overlay,
                                  *args, **kwargs)
+                hinge_pos = Position(
+                    x=0.5*(self.padding[0] - pull_width), # pull on left
+                    y=-self.material.thickness,
+                    z=0.5*(self.height - pull_height),
+                )
             case _:
                 raise ValueError(f"arg 'hinge_side' must be 'left' or 'right'")
+
+        self.add_child(
+            RectangularComponent(
+                width=pull_width,
+                height=pull_height,
+                material=Material.HARDWOOD_3_4,
+                position=hinge_pos,
+                color='red',
+            )
+        )
