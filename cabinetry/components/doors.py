@@ -7,7 +7,7 @@ class ShakerDoor(ShakerFramedPanel):
 
     def __init__(self,
                  hinge_side: str = 'left',
-                 hinge_stile: str = 'single',
+                 hinge_stile_factor: str = 'double',
                  is_paired: bool = True,
                  *args, **kwargs) -> 'ShakerDoor':
         """Object constructor
@@ -26,7 +26,7 @@ class ShakerDoor(ShakerFramedPanel):
         large_overlay = Config.FACE_FRAME_MEMBER_WIDTH - 0.5*Config.OVERLAY_GAP
         small_overlay = 0.5 * \
             (Config.FACE_FRAME_MEMBER_WIDTH - Config.OVERLAY_GAP)
-        match hinge_stile:
+        match hinge_stile_factor:
             case 'single':
                 hinge_side_overlay = small_overlay
             case 'double':
