@@ -30,10 +30,11 @@ def _N_Drawer_eq_args(num_drawers: int):
     }
 
 
-def _N_Door_eq_args(num_doors):
+def _N_Door_eq_args(num_doors: int, hinge_side_preference: str = 'left'):
     return {
         'door_dist': [1]*num_doors,
         'dist_type': ['weighted']*num_doors,
+        'hinge_side_preference': hinge_side_preference
     }
 
 
@@ -74,35 +75,31 @@ def main():
             frame_args=_N_Drawer_eq_args(3),
         )
     )
-    # lower_cabs.append(
-    #     LowerCabinet(
-    #         width=60,
-    #         frame_type='N-Door',
-    #         frame_args=_N_Door_eq_args(3),
-    #     )
-    # )
-    # lower_cabs.append(
-    #     LowerCabinet(
-    #         width=72,
-    #         frame_type='N-Door',
-    #         frame_args=_N_Door_eq_args(4),
-    #     )
-    # )
 
     widths = [cab.width for cab in lower_cabs]
     nCab = len(widths)
-    spacing = 0.25
-    depth = lower_cabs[0].case.CABINET_DEPTH
+    cabinet_gap = 0.25
+    row_spacing = Config.COUNTER_TO_UPPERS_GAP
+    row_dist = [Config.UPPERS_HEIGHT, Config.COUNTER_HEIGHT]
+    nRow = len(row_dist)
+    total_height = sum(row_dist) + row_spacing*(nRow-1)
+
     base_frame = ComponentGrid(
         name='global_frame',
-        width=sum(widths) + spacing*(nCab-1),
-        height=depth,
-        row_dist=np.array([Config.UPPERS_HEIGHT, Config.COUNTER_HEIGHT]),
+        width=sum(widths) + cabinet_gap*(nCab-1),
+        height=total_height,
+        row_dist=np.array(row_dist),
         row_type=['fixed']*2,
         col_dist=np.array(widths),
         col_type=['fixed']*nCab,
-        column_spacing=spacing,
-        row_spacing=Config.COUNTER_TO_UPPERS_GAP,
+        column_spacing=cabinet_gap,
+        row_spacing=row_spacing,
+        padding=(0,0,0,0),
+        position=Position(
+            x=0,
+            y=0,
+            z=0,
+        ),
         orientation=Orientation(
             rx=0,
             ry=0,
@@ -126,6 +123,45 @@ def main():
     lower_cells = base_frame.cells[1, :]
     for lower_cab, cell in zip(lower_cabs, lower_cells):
         cell.add_child(lower_cab)
+
+
+    base_frame.add_child(
+        LowerCabinet(
+            width=60,
+            frame_type='N-Door-Horiz',
+            frame_args=_N_Door_eq_args(3, hinge_side_preference='left'),
+            position=Position(
+                x=0,
+                y=-120,
+                z=0,
+            )
+        )
+    )
+    base_frame.add_child(
+        LowerCabinet(
+            width=60,
+            frame_type='N-Door-Horiz',
+            frame_args=_N_Door_eq_args(3, hinge_side_preference='right'),
+            position=Position(
+                x=60.25,
+                y=-120,
+                z=0,
+            )
+        )
+    )
+    base_frame.add_child(
+        LowerCabinet(
+            width=72,
+            frame_type='N-Door-Horiz',
+            frame_args=_N_Door_eq_args(4, hinge_side_preference='alternate'),
+            position=Position(
+                x=120.5,
+                y=-120,
+                z=0,
+            )
+        )
+    )
+
     base_frame.render(show_edges=True, opacity=1)
 
 
