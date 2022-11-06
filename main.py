@@ -1,22 +1,17 @@
 from cabinetry.base import Orientation, Position
-from cabinetry.components import ComponentContainer, ComponentGrid
-from cabinetry.components.drawers import BlumDrawer
-from cabinetry.components.lowers import LowerCabinet, LowerCabinetCase
+from cabinetry.config import Config
+from cabinetry.components import ComponentGrid
+from cabinetry.components.uppers import UpperCabinet
+from cabinetry.components.lowers import LowerCabinet
 import numpy as np
+
 
 TOP_DRAWER_HEIGHT = 5
 
-_4_Drawer_eq_args = {
-    'drawer_dist': [1]*4,
-    'dist_type': ['weighted']*4,
-}
+
 _4_Drawer_offset_args = {
     'drawer_dist': [TOP_DRAWER_HEIGHT, 1, 1, 1],
     'dist_type': ['fixed', 'weighted', 'weighted', 'weighted'],
-}
-_3_Drawer_eq_args = {
-    'drawer_dist': [1]*3,
-    'dist_type': ['weighted']*3,
 }
 _3_Drawer_offset_args = {
     'drawer_dist': [TOP_DRAWER_HEIGHT, 1, 1],
@@ -28,13 +23,27 @@ _1_Drawer_2_Door_args = {
 }
 
 
+def _N_Drawer_eq_args(num_drawers: int):
+    return {
+        'drawer_dist': [1]*num_drawers,
+        'dist_type': ['weighted']*num_drawers,
+    }
+
+
+def _N_Door_eq_args(num_doors):
+    return {
+        'door_dist': [1]*num_doors,
+        'dist_type': ['weighted']*num_doors,
+    }
+
+
 def main():
     lower_cabs: list[LowerCabinet] = []
     lower_cabs.append(
         LowerCabinet(
             width=36,
             frame_type='N-Drawer',
-            frame_args=_4_Drawer_eq_args,
+            frame_args=_N_Drawer_eq_args(4),
         )
     )
     lower_cabs.append(
@@ -51,39 +60,34 @@ def main():
             frame_args=_3_Drawer_offset_args,
         )
     )
-    # lower_cabs.append(
-    #     LowerCabinet(
-    #         width=27,
-    #         frame_type='1-Drawer-2-Door',
-    #         frame_args=_1_Drawer_2_Door_args,
-    #     )
-    # )
-    # cab = lower_cabs[-1]
-    # dwr_cell = cab.face.cells[0]
-    # dwr_cell.add_child(
-    #     BlumDrawer(
-    #         opening_width=cell.width,
-    #         opening_height=cell.height,
-    #     )
-    # )
-
+    lower_cabs.append(
+        LowerCabinet(
+            width=27,
+            frame_type='1-Drawer-2-Door',
+            frame_args=_1_Drawer_2_Door_args,
+        )
+    )
     lower_cabs.append(
         LowerCabinet(
             width=24,
             frame_type='N-Drawer',
-            frame_args=_3_Drawer_eq_args,
+            frame_args=_N_Drawer_eq_args(3),
         )
     )
-
-    for cab in lower_cabs:
-        cells = cab.face.cells.reshape(cab.face.cells.size,).tolist()
-        for cell in cells:
-            cell.add_child(
-                BlumDrawer(
-                    opening_width=cell.width,
-                    opening_height=cell.height,
-                )
-            )
+    # lower_cabs.append(
+    #     LowerCabinet(
+    #         width=60,
+    #         frame_type='N-Door',
+    #         frame_args=_N_Door_eq_args(3),
+    #     )
+    # )
+    # lower_cabs.append(
+    #     LowerCabinet(
+    #         width=72,
+    #         frame_type='N-Door',
+    #         frame_args=_N_Door_eq_args(4),
+    #     )
+    # )
 
     widths = [cab.width for cab in lower_cabs]
     nCab = len(widths)
@@ -93,11 +97,12 @@ def main():
         name='global_frame',
         width=sum(widths) + spacing*(nCab-1),
         height=depth,
-        row_dist=np.array([1]),
-        row_type=['weighted'],
+        row_dist=np.array([Config.UPPERS_HEIGHT, Config.COUNTER_HEIGHT]),
+        row_type=['fixed']*2,
         col_dist=np.array(widths),
         col_type=['fixed']*nCab,
         column_spacing=spacing,
+        row_spacing=Config.COUNTER_TO_UPPERS_GAP,
         orientation=Orientation(
             rx=0,
             ry=0,
@@ -105,9 +110,23 @@ def main():
         )
     )
 
-    for cab, cell in zip(lower_cabs, base_frame.cells.reshape(base_frame.cells.size,).tolist()):
-        cell.add_child(cab)
-    base_frame.render(show_edges=True)
+    upper_cells = base_frame.cells[0, :]
+    for cell in upper_cells:
+        cell.add_child(
+            UpperCabinet(
+                width=cell.width,
+                position=Position(
+                    x=0,
+                    y=Config.LOWERS_DEPTH-Config.UPPERS_DEPTH,
+                    z=0,
+                )
+            )
+        )
+
+    lower_cells = base_frame.cells[1, :]
+    for lower_cab, cell in zip(lower_cabs, lower_cells):
+        cell.add_child(lower_cab)
+    base_frame.render(show_edges=True, opacity=1)
 
 
 if __name__ == "__main__":

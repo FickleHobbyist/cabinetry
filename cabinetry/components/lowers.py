@@ -1,7 +1,9 @@
 """Module containing concrete components from which to build cabinets"""
-from ..base import Position, Orientation
-from . import ComponentContainer, FaceFrame, RectangularComponent, get_faceframe_factory
 from ..config import Config
+from ..base import Position, Orientation
+from . import ComponentContainer, FaceFrame, RectangularComponent
+from .factory import get_faceframe_factory
+
 
 class LowerCabinetCase(ComponentContainer):
     TOEKICK_HEIGHT = 3.5  # TO_BOTTOM_OF FACEFRAME
@@ -9,20 +11,22 @@ class LowerCabinetCase(ComponentContainer):
     STRETCHER_WIDTH = 2.5
     FLOOR_DADO_DEPTH = 0.375
     DADO_HEIGHT_ABOVE_TOEKICK_CUTOUT = 0.5
-    CABINET_DEPTH = 24
+    CABINET_DEPTH = Config.LOWERS_DEPTH
 
-    def __init__(self, width=36, height=34.5, name='LowerCabinetCase', **kwargs) -> None:
-        clr = kwargs.pop('color', None)
-        super(LowerCabinetCase, self).__init__(name=name, color=clr, **kwargs)
+    def __init__(self,
+                 width: float,
+                 height: float = None,
+                 name='LowerCabinetCase',
+                  *args, **kwargs) -> None:
+        clr = kwargs.pop('color', Config.CABINET_CASE_COLOR)
+        super().__init__(
+            name=name, color=clr, *args, **kwargs)
         self.width = width
-        self.height = height
+        self.height = height if height is not None else (
+            Config.COUNTER_HEIGHT - Config.COUNTERTOP_THICKNESS)
         self.material = Config.LOWERS_CASE_MATERIAL
-        self.color = clr
 
         self.construct_components()
-
-    def get_pv_mesh(self):
-        return None
 
     def construct_components(self) -> None:
         # Top surface of bottom panel
@@ -192,7 +196,7 @@ class LowerCabinetCase(ComponentContainer):
         )
 
     def __repr__(self) -> str:
-        return f"{self.__class__}(name={self.name}, width={self.width}, pos={self.position})"
+        return f"{self.__class__.name}(name={self.name}, width={self.width}, pos={self.position})"
 
 
 class LowerCabinet(ComponentContainer):
@@ -214,6 +218,7 @@ class LowerCabinet(ComponentContainer):
         self.construct_components()
 
     def construct_components(self):
+        self.clear_children()
         self.case = LowerCabinetCase(
             width=self.width,
             height=self.height,

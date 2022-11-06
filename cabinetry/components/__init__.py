@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from dataclasses import dataclass, field
+from warnings import warn
 from ..config import Config  # .. refers to cabinetry top level package
 from ..base import Poseable, Position, RenderTree
 from ..materials import Material
@@ -245,6 +246,7 @@ class ComponentGrid(ComponentContainer):
 
 
 class FaceFrame(ComponentGrid):
+    """Cabinet FaceFrame component."""    
     def __init__(self,
                  box_width: float,
                  box_height: float,
@@ -254,7 +256,23 @@ class FaceFrame(ComponentGrid):
                  side_overhang: float = 1/8,
                  color: pv.color_like = Config.FACE_FRAME_COLOR,
                  *args, **kwargs):
+        """Object constructor
 
+        :param box_width: Outer width of box
+        :type box_width: float
+        :param box_height: Outer height of box
+        :type box_height: float
+        :param box_material: Material of box to which the FaceFrame will be attached
+        :type box_material: Material
+        :param width_rail: Width of horizontal divider components, defaults to Config.FACE_FRAME_MEMBER_WIDTH
+        :type width_rail: float, optional
+        :param width_stile: Width of vertical divider components, defaults to Config.FACE_FRAME_MEMBER_WIDTH
+        :type width_stile: float, optional
+        :param side_overhang: Excess width on either side of cabinet, defaults to 1/8
+        :type side_overhang: float, optional
+        :param color: Color for frame divider components, defaults to Config.FACE_FRAME_COLOR
+        :type color: pv.color_like, optional
+        """
         width = kwargs.pop('width', box_width+2*side_overhang)
         height = kwargs.pop('height', box_height +
                             (width_rail - box_material.thickness))
@@ -326,13 +344,13 @@ class FaceFrame(ComponentGrid):
                     )
                 )
 
-        # Make rails sized by bottom/top padding
-        for r_pos, r_width in zip([rail_anchors[0], rail_anchors[-1]], [self.padding[1], self.padding[3]]):
+        # Make rails sized by top/bottom padding
+        for r_pos, r_width in zip([rail_anchors[0], rail_anchors[-1]], [self.padding[3], self.padding[1]]):
             if r_width > 0:
                 self.add_child(
                     RectangularComponent(
                         width=self.grid_width,
-                        height=self.width_rail,
+                        height=r_width,
                         material=self.material,
                         # x=width, y=thickness, z=height
                         position=Position(x=self.padding[0], y=0, z=r_pos),
@@ -373,119 +391,87 @@ class FaceFrame(ComponentGrid):
                 )
 
 
-def _N_Drawer_faceframe(
-    box_width,
-    box_height,
-    box_material,
-    side_overhang,
-    drawer_dist: list = None,
-    dist_type: list[str] = None,
-) -> FaceFrame:
-    drawer_dist = drawer_dist if drawer_dist is not None else [1]*4
-    dist_type = dist_type if dist_type is not None else ['weighted']*4
-    face = FaceFrame(
-        box_width=box_width,
-        box_height=box_height,
-        box_material=box_material,
-        side_overhang=side_overhang,
-        row_dist=np.array(drawer_dist),
-        row_type=dist_type,
-        col_dist=np.array([1]),
-        col_type=['weighted'],
-        position=Position(  # x=width, y=thickness, z=height
-            x=-side_overhang,
-            y=0,
-            z=0,
-        ),
-    )
+class ShakerFramedPanel(FaceFrame):
+    """A simple shaker style panel and frame. Used for doors and drawer faces."""
 
-    return face
+    def __init__(self,
+                 opening_width: float,
+                 opening_height: float,
+                 width_rail: float = 2.0,
+                 width_stile: float = 2.5,
+                 top_bottom_overlay: float = None,
+                 left_overlay: float = None,
+                 right_overlay: float = None,
+                 *args, **kwargs) -> 'ShakerFramedPanel':
+        """Instantiate a ShakerFramedPanel
 
+        :param opening_width: Width of opening in which the drawer will fit
+        :type opening_width: float
+        :param opening_height: Height of opening in which the drawer will fit
+        :type opening_height: float
+        :param width_rail: Width of horizontal rail bordering the inset panel, defaults to 2.0
+        :type width_rail: float, optional
+        :param width_stile: Height of vertical stile bordering the inset panel, defaults to 2.5
+        :type width_stile: float, optional
+        :return: Constructed object
+        :rtype: ShakerFramedPanel
+        """
+        if top_bottom_overlay is None:
+            self.top_bottom_overlay = (
+                0.5 * (Config.FACE_FRAME_MEMBER_WIDTH - Config.OVERLAY_GAP))
+        else:
+            self.top_bottom_overlay = top_bottom_overlay
+        
+        if left_overlay is None:
+            self.left_overlay = Config.FACE_FRAME_MEMBER_WIDTH - 0.5*Config.OVERLAY_GAP
+        else:
+            self.left_overlay = left_overlay
 
-def _N_Door_faceframe(
-    box_width,
-    box_height,
-    box_material,
-    side_overhang,
-    door_dist: list = None,
-    dist_type: list[str] = None,
-) -> FaceFrame:
-    door_dist = door_dist if door_dist is not None else [1]*2
-    dist_type = dist_type if dist_type is not None else ['weighted']*2
-    face = FaceFrame(
-        box_width=box_width,
-        box_height=box_height,
-        box_material=box_material,
-        side_overhang=side_overhang,
-        row_dist=np.array([1]),
-        row_type=['weighted'],
-        col_dist=door_dist,
-        col_type=dist_type,
-        position=Position(  # x=width, y=thickness, z=height
-            x=-side_overhang,
-            y=0,
-            z=0,
-        ),
-    )
+        if right_overlay is None:
+            self.right_overlay = self.left_overlay
+        else:
+            self.right_overlay = right_overlay
+        
+        super().__init__(box_width=0, box_height=0, box_material=Material.PLY_1_2,
+                         width_rail=width_rail, width_stile=width_stile,
+                         width=(opening_width+(self.left_overlay + self.right_overlay)),
+                         height=opening_height+2*self.top_bottom_overlay,
+                         *args, **kwargs)
+        self.inset_thickness = Config.FRAMED_PANEL_INSET_MATERIAL.thickness
+        self.inset_depth = Config.FACE_FRAME_MATERIAL.thickness - 2*self.inset_thickness
 
-    return face
+        if ('position' in kwargs.keys()
+                or any(isinstance(arg, Position) for arg in args)):
+            warn('position argument is overridden in ShakerFramedPanel \
+                and will have no effect')
+        self.construct_components()
+        self.correct_position()
 
+    def correct_position(self):
+        # Anchor such that origin is at bottom left corner of opening
+        # and appropriate overlay is established
+        self.position.x = -self.left_overlay
+        self.position.y = -self.material.thickness
+        self.position.z = -self.top_bottom_overlay
 
-def _1_Drawer_2_Door_faceframe(
-    box_width,
-    box_height,
-    box_material,
-    side_overhang,
-    drawer_dist: list = None,
-    dist_type: list[str] = None,
-) -> FaceFrame:
-    drawer_dist = drawer_dist if drawer_dist is not None else [5, 1]
-    dist_type = dist_type if dist_type is not None else ['fixed' 'weighted']
-    face = _N_Drawer_faceframe(
-        box_width,
-        box_height,
-        box_material,
-        side_overhang,
-        drawer_dist,
-        dist_type,
-    )
-    subcell: GridCell = face.cells[1, 0]
-    subcell.add_child(
-        FaceFrame(
-            box_width=face.grid_width,
-            box_height=subcell.height,
-            box_material=box_material,
-            side_overhang=0,
-            width=face.grid_width,
-            height=subcell.height,
-            padding=(0,)*4,
-            row_dist=np.array([1]),
-            row_type=['weighted'],
-            col_dist=np.array([1, 1]),
-            col_type=['weighted']*2,
-        )
-    )
-    return face
+    def construct_components(self):
+        """Generate renderable components for the drawer face."""
+        super().construct_components()
 
+        inset_dado_depth = self.inset_thickness
 
-# Reference for ideas: https://keystonewood.com/wp-content/uploads/2022/06/Face-Frames-Form-6-2022.pdf
-_FACEFRAME_FACTORIES: dict = {
-    'N-Drawer': _N_Drawer_faceframe,
-    'N-Door': _N_Door_faceframe,
-    '1-Drawer-2-Door': _1_Drawer_2_Door_faceframe,
-}
-
-
-def register_faceframe_factory(name: str, func: callable):
-    if name not in _FACEFRAME_FACTORIES.keys():
-        _FACEFRAME_FACTORIES[name] = func
-
-
-def get_faceframe_factory(name: str) -> callable:
-    if name in _FACEFRAME_FACTORIES.keys():
-        return _FACEFRAME_FACTORIES[name]
-    else:
-        key_str = "\n\t".join(_FACEFRAME_FACTORIES.keys())
-        raise ValueError(
-            f"'{name}' is not a registered FaceFrameFactory. Available factories are:\n\t{key_str}"
+        cell = self.cells[0, 0]
+        cell.add_child(
+            RectangularComponent(
+                name='Inset Panel (Dadoed)',
+                width=cell.width + 2*inset_dado_depth,
+                height=cell.height + 2*inset_dado_depth,
+                material=Config.FRAMED_PANEL_INSET_MATERIAL,
+                color=Config.FRAMED_PANEL_INSET_COLOR,
+                position=Position(
+                    x=-self.inset_thickness,
+                    y=self.inset_depth,
+                    z=-self.inset_depth,
+                )
+            )
         )

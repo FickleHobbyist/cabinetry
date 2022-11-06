@@ -240,10 +240,11 @@ class RenderTree(TreeNode):
         assert isinstance(node, RenderTree)
         super().add_child(node)
 
-    def render(self, show_edges: bool = True) -> None:
+    def render(self, show_edges: bool = True, opacity=1) -> None:
         """Render all items in the RenderTree at or below the level
         of the node on which render() is called.
         """
+
         p = pv.Plotter()
         p.add_axes()
         p.add_axes_at_origin(x_color='red', y_color='green', z_color='blue',
@@ -258,12 +259,17 @@ class RenderTree(TreeNode):
             if node not in visited:
                 mesh = node.get_pv_mesh()
                 if mesh is not None:
-                    p.add_mesh(mesh, color=node.color, show_edges=show_edges)
+                    p.add_mesh(
+                        mesh,
+                        color=node.color,
+                        show_edges=show_edges,
+                        opacity=opacity,
+                    )
                 Q.extend(node.children)
                 visited.append(node)
 
         p.enable_point_picking(
-            callback=_point_click_callback, left_clicking=True, pickable_window=False)
+            callback=_point_click_callback, left_clicking=False, pickable_window=False)
         p.show()
 
     def get_pv_mesh(self):

@@ -1,24 +1,14 @@
-from ..base import Position, Orientation
-from . import ComponentContainer, FaceFrame, RectangularComponent, get_faceframe_factory
-from ..materials import Material
 from ..config import Config
-import pyvista as pv
+from ..base import Position, Orientation
+from ..materials import Material
+from . import ComponentContainer, RectangularComponent, ShakerFramedPanel
 import numpy as np
 
 
-class ShakerDrawerFace(FaceFrame):
-    """A simple shaker style drawer face
+class ShakerDrawerFace(ShakerFramedPanel):
+    """A simple shaker style drawer face."""
 
-    :param FaceFrame: _description_
-    :type FaceFrame: _type_
-    """
-
-    def __init__(self,
-                 opening_width: float,
-                 opening_height: float,
-                 width_rail: float = 2.0,
-                 width_stile: float = 2.0,
-                 *args, **kwargs) -> 'ShakerDrawerFace':
+    def __init__(self, *args, **kwargs) -> 'ShakerDrawerFace':
         """Instantiate a ShakerDrawerFace
 
         :param opening_width: Width of opening in which the drawer will fit
@@ -32,49 +22,24 @@ class ShakerDrawerFace(FaceFrame):
         :return: Constructed object
         :rtype: ShakerDrawerFace
         """        
-
-        self.top_bottom_overlay = (
-            0.5 * (Config.FACE_FRAME_MEMBER_WIDTH - Config.OVERLAY_GAP))
-        self.side_overlay = Config.FACE_FRAME_MEMBER_WIDTH - 0.5*Config.OVERLAY_GAP
-        super().__init__(box_width=0, box_height=0, box_material=Material.PLY_1_2,
-                         width_rail=width_rail, width_stile=width_stile,
-                         width=(opening_width+2*self.side_overlay),
-                         height=opening_height+2*self.top_bottom_overlay,
-                         *args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self.construct_components()
 
     def construct_components(self):
         """Generate renderable components for the drawer face."""
         super().construct_components()
-        inset_thickness = Config.DRAWER_FACE_INSET_MATERIAL.thickness
-        inset_dado_depth = inset_thickness
-        inset_depth = Config.FACE_FRAME_MATERIAL.thickness - 2*inset_thickness
         cell = self.cells[0, 0]
         cell.add_child(
             RectangularComponent(
-                name='Drawer Face Inset (Dadoed)',
-                width=cell.width + 2*inset_dado_depth,
-                height=cell.height + 2*inset_dado_depth,
-                material=Config.DRAWER_FACE_INSET_MATERIAL,
-                color=Config.DRAWER_FACE_INSET_COLOR,
-                position=Position(
-                    x=-inset_thickness,
-                    y=inset_depth,
-                    z=-inset_depth,
-                )
-            )
-        )
-        cell.add_child(
-            RectangularComponent(
-                name='Drawer Face Inset (Glue-on)',
+                name='Flush Rear Panel (Glue-on)',
                 width=cell.width,
                 height=cell.height,
-                material=Config.DRAWER_FACE_INSET_MATERIAL,
-                color=Config.DRAWER_FACE_INSET_COLOR,
+                material=Config.FRAMED_PANEL_INSET_MATERIAL,
+                color=Config.FRAMED_PANEL_INSET_COLOR,
                 position=Position(
                     x=0,
-                    y=inset_depth+inset_thickness,
+                    y=self.inset_depth+self.inset_thickness,
                     z=0,
                 )
             )
@@ -251,16 +216,5 @@ class BlumDrawer(ComponentContainer):
             name='Drawer Face',
             opening_width=self.opening_width,
             opening_height=self.opening_height,
-            row_dist=np.array([1]),
-            row_type=['weighted'],
-            col_dist=np.array([1]),
-            col_type=['weighted'],
-            position=Position(
-                x=0,
-                y=-Config.FACE_FRAME_MATERIAL.thickness,
-                z=0,
-            )
         )
-        face.position.x = -face.side_overlay
-        face.position.z = -face.top_bottom_overlay
         self.add_child(face)
