@@ -187,7 +187,7 @@ class UpperCabinet(ComponentContainer):
     def __init__(self, width: float,
                  height: float = Config.UPPERS_HEIGHT,
                  name='UpperCabinet',
-                 frame_type: str = 'N-Door',
+                 frame_type: str = 'N-Door-Horiz',
                  frame_args: dict = {'door_dist': [
                      1]*2, 'dist_type': ['weighted']*2},
                  *args, **kwargs):
