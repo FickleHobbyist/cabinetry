@@ -100,11 +100,12 @@ class BlumDrawer(ComponentContainer):
 
     def construct_components(self):
         bottom_dado_depth = 0.5 * self.box_material.thickness
+        side_dado_depth = 0.5 * self.box_material.thickness
         drawer_inside_width = self.opening_width - (1+15/16)
         drawer_outside_width = drawer_inside_width + 2*self.box_material.thickness
         drawer_length = self.get_drawer_length()
         bottom_width = drawer_inside_width + 2*bottom_dado_depth
-        side_length = drawer_length - 2*self.box_material.thickness
+        side_length = drawer_length
 
         box = ComponentContainer(
             position=Position(
@@ -126,7 +127,7 @@ class BlumDrawer(ComponentContainer):
                 color=Config.DRAWER_BOX_COLOR,
                 position=Position(
                     x=self.box_material.thickness,
-                    y=self.box_material.thickness,
+                    y=0,
                     z=0,
                 ),
                 orientation=Orientation(
@@ -145,7 +146,7 @@ class BlumDrawer(ComponentContainer):
                 color=Config.DRAWER_BOX_COLOR,
                 position=Position(
                     x=2*self.box_material.thickness + drawer_inside_width,
-                    y=self.box_material.thickness,
+                    y=0,
                     z=0,
                 ),
                 orientation=Orientation(
@@ -159,7 +160,7 @@ class BlumDrawer(ComponentContainer):
             RectangularComponent(
                 name='Drawer Bottom',
                 width=bottom_width,
-                height=side_length+2*bottom_dado_depth,
+                height=side_length-2*bottom_dado_depth,
                 material=self.bottom_material,
                 color=Config.DRAWER_BOX_COLOR,
                 position=Position(
@@ -177,12 +178,12 @@ class BlumDrawer(ComponentContainer):
         box.add_child(
             RectangularComponent(
                 name='Drawer False Front',
-                width=drawer_inside_width + 2*self.box_material.thickness,
+                width=drawer_inside_width + 2*side_dado_depth,
                 height=self.box_height,
                 material=self.box_material,
                 color=Config.DRAWER_BOX_COLOR,
                 position=Position(
-                    x=0,
+                    x=self.box_material.thickness-side_dado_depth,
                     y=0,
                     z=0,
                 ),
@@ -196,13 +197,13 @@ class BlumDrawer(ComponentContainer):
         box.add_child(
             RectangularComponent(
                 name='Drawer Back',
-                width=drawer_inside_width + 2*self.box_material.thickness,
+                width=drawer_inside_width + 2*side_dado_depth,
                 height=self.box_height,
                 material=self.box_material,
                 color=Config.DRAWER_BOX_COLOR,
                 position=Position(
-                    x=0,
-                    y=side_length+self.box_material.thickness,
+                    x=self.box_material.thickness-side_dado_depth,
+                    y=side_length-self.box_material.thickness,
                     z=0,
                 ),
                 orientation=Orientation(
