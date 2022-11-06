@@ -14,4 +14,11 @@ This repository contains geometric representations of household cabinetry, which
     - Use fudge factor on total ply area / (48x96) for number of sheets required.
     - Use total volume to estimate board feet of hardwood type materials required plus fudge factor for waste.
 - [x] Adjust drawer box components to account for length increment due to rabbets & dadoes.
+- [ ] Refactor color selections to be based on Material class
+- [ ] Create Materials for specific wood species
+- [ ] Associate unit with material
+- [ ] Associate minimum unit size with material
+    - For example, plywood would be 48x96 = 4608 sq in
+- [ ] Establish method for adding shelves
+    - Probably make use of ComponentGrid and some of the specialized FaceFrame code for creating items in between GridCells
 - [ ] Improve API documentation
