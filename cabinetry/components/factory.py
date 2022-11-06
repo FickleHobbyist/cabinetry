@@ -6,7 +6,7 @@ from .doors import ShakerDoor
 import numpy as np
 
 
-def _NxN_Empty_faceframe(
+def _MxN_Empty_faceframe(
     box_width,
     box_height,
     box_material,
@@ -67,14 +67,7 @@ def _N_Drawer_faceframe(
         ),
     )
 
-    cells = face.cells.reshape(face.cells.size,).tolist()
-    for cell in cells:
-        cell.add_child(
-            BlumDrawer(
-                opening_width=cell.width,
-                opening_height=cell.height,
-            )
-        )
+    _drawer_factory(face.cells)
 
     return face
 
@@ -143,7 +136,7 @@ def _N_Door_horizontal_faceframe(
         ),
         *args, **kwargs,
     )
-    
+
     _door_factory(face.cells, hinge_side_preference=hinge_side_preference)
 
     return face
@@ -174,13 +167,9 @@ def _1_Drawer_2_Door_faceframe(
             z=0,
         ),
     )
-    drawer_cell: GridCell = face.cells[0, 0]
-    drawer_cell.add_child(
-        BlumDrawer(
-            opening_width=drawer_cell.width,
-            opening_height=drawer_cell.height,
-        )
-    )
+
+    _drawer_factory(face.cells[0, 0])
+
     subcell: GridCell = face.cells[1, 0]
     door_ff = FaceFrame(
         box_width=face.grid_width,
@@ -204,7 +193,7 @@ def _1_Drawer_2_Door_faceframe(
 
 # Reference for ideas: https://keystonewood.com/wp-content/uploads/2022/06/Face-Frames-Form-6-2022.pdf
 _FACEFRAME_FACTORIES: dict = {
-    'NxN-Empty': _NxN_Empty_faceframe,
+    'MxN-Empty': _MxN_Empty_faceframe,
     'N-Drawer': _N_Drawer_faceframe,
     'N-Door-Horiz': _N_Door_horizontal_faceframe,
     'N-Door-Vert': _N_Door_vertical_faceframe,
@@ -226,13 +215,18 @@ def get_faceframe_factory(name: str) -> callable:
             f"'{name}' is not a registered FaceFrameFactory. Available factories are:\n\t{key_str}"
         )
 
-# \/\/\/ Door Factories \/\/\/
-# inputs: numpy array of GridCell objects
 
 def _door_factory(
     cells: np.ndarray,
     hinge_side_preference: str = 'left',
 ) -> None:
+    """Places ShakerDoor objects in provided grid cells
+
+    :param cells: MxN array of GridCell objects
+    :type cells: np.ndarray
+    :param hinge_side_preference: Preferred hinge side. Use 'left','right', or 'alternate'. Defaults to 'left'
+    :type hinge_side_preference: str, optional
+    """
 
     for row in cells:
         nDoors = row.size
@@ -254,10 +248,31 @@ def _door_factory(
         hinge_factors.append('double')
         for cell, LR, hs in zip(row, hinge_sides, hinge_factors):
             cell.add_child(
-            ShakerDoor(
-                hinge_side=LR,
-                hinge_stile_factor=hs,
-                opening_width=cell.width,
-                opening_height=cell.height,
+                ShakerDoor(
+                    hinge_side=LR,
+                    hinge_stile_factor=hs,
+                    opening_width=cell.width,
+                    opening_height=cell.height,
+                )
             )
-        )
+
+
+def _drawer_factory(
+    cells: np.ndarray
+) -> None:
+    """Places BlumDrawer objects in provided grid cells
+
+    :param cells: MxN array of GridCell objects
+    :type cells: np.ndarray
+    """
+    if cells.ndim == 1:
+        cells = cells.reshape((1, *cells.shape))
+
+    for row in cells:
+        for cell in row:
+            cell.add_child(
+                BlumDrawer(
+                    opening_width=cell.width,
+                    opening_height=cell.height,
+                )
+            )
