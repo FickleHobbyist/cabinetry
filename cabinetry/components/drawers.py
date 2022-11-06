@@ -2,7 +2,6 @@ from ..config import Config
 from ..base import Position, Orientation
 from ..materials import Material
 from . import ComponentContainer, RectangularComponent, ShakerFramedPanel
-import numpy as np
 
 
 class ShakerDrawerFace(ShakerFramedPanel):
@@ -21,7 +20,7 @@ class ShakerDrawerFace(ShakerFramedPanel):
         :type width_stile: float, optional
         :return: Constructed object
         :rtype: ShakerDrawerFace
-        """        
+        """
         super().__init__(*args, **kwargs)
 
         self.construct_components()
@@ -56,7 +55,7 @@ class BlumDrawer(ComponentContainer):
     :raises ValueError: Box height may be no larger than (opening height - 25/32)
     :return: Constructed drawer object.
     :rtype: BlumDrawer
-    """    
+    """
     DRAWER_BOTTOM_RECESS = 0.5
     DRAWER_HEIGHT_ABOVE_OPENING = 9/16
 
