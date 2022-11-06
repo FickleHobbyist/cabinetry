@@ -229,22 +229,25 @@ class LowerCabinet(ComponentContainer):
                 z=0,
             ),
         )
-        faceframe_side_overhang = 1/8
-
-        ff_factory = get_faceframe_factory(self.frame_type)
-
-        self.face: FaceFrame = ff_factory(
-            box_width=self.width,
-            box_height=(self.height -
-                        (self.case.bottom_height_above_floor-self.case.material.thickness)),
-            box_material=self.case.material,
-            side_overhang=faceframe_side_overhang,
-            **self.frame_args,
-        )
-        self.face.position.z = self.case.TOEKICK_HEIGHT
-
-        self.face.construct_components()
-        # self.face.construct_test_components()
-
+        
         self.add_child(self.case)
-        self.add_child(self.face)
+
+        if self.frame_type is not None:
+            faceframe_side_overhang = 1/8
+            ff_factory = get_faceframe_factory(self.frame_type)
+
+            self.face: FaceFrame = ff_factory(
+                box_width=self.width,
+                box_height=(self.height -
+                            (self.case.bottom_height_above_floor-self.case.material.thickness)),
+                box_material=self.case.material,
+                side_overhang=faceframe_side_overhang,
+                **self.frame_args,
+            )
+            self.face.position.z = self.case.TOEKICK_HEIGHT
+
+            self.face.construct_components()
+            # self.face.construct_test_components()
+            self.add_child(self.face)
+
+        
