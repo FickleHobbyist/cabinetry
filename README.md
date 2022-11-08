@@ -19,7 +19,7 @@ This repository contains geometric representations of household cabinetry, which
 - [ ] Associate unit with material
 - [ ] Associate minimum unit size with material
     - For example, plywood would be 48x96 = 4608 sq in
-- [ ] Establish method for adding shelves
+- [x] Establish method for adding shelves
     - Probably make use of ComponentGrid and some of the specialized FaceFrame code for creating items in between GridCells
 - [x] Make & implement a factory function for drawers
 - [ ] Improve API documentation
