@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from warnings import warn
 from ..config import Config  # .. refers to cabinetry top level package
@@ -148,6 +148,23 @@ class GridCell(ComponentContainer):
         self.width: float = width
         self.height: float = height
 
+    @property
+    def top_right(self):
+        return self.position + (self.width, 0, self.height)
+
+    @staticmethod
+    def spanning(cells: np.ndarray, *args, **kwargs):
+        bottom_left_cell = cells[-1,0]
+        top_right_cell = cells[0,-1]
+        diag = top_right_cell.top_right - bottom_left_cell.position
+        return GridCell(
+            width=diag.x,
+            height=diag.z,
+            position=bottom_left_cell.position,
+            *args, **kwargs,
+        )
+        
+
 
 class ComponentGrid(ComponentContainer):
     """Constructs a structured grid of GridCell component containers.
@@ -242,11 +259,43 @@ class ComponentGrid(ComponentContainer):
             cells.append(gc)
 
         self.cells = np.array(cells).reshape(len(self.rows), len(self.cols))
-        return self.cells
+
+        # Make row div cells (interior only)
+        self.row_div_cells = []
+        for r_pos, r_sz, i in zip(row_pos[1:], row_sizes[1:], range(0, len(row_pos)-1)):
+            gc = GridCell(
+                name=f"row_div_{i:02d}",
+                height=self.row_spacing,
+                width=self.grid_width,
+                position=Position(
+                    x=self.padding[0],  # left padding
+                    y=0,
+                    z=r_pos+r_sz,
+                )
+            )
+            self.row_div_cells.append(gc)
+            self.add_child(gc)
+
+        # Make col div cells (interior only)
+        self.col_div_cells = []
+        for c_pos, c_sz, i in zip(col_pos[:-1], col_sizes[:-1], range(0, len(col_pos)-1)):
+            gc = GridCell(
+                name=f"col_div_{i:02d}",
+                height=self.grid_height,
+                width=self.column_spacing,
+                position=Position(
+                    x=c_pos+c_sz,
+                    y=0,
+                    z=self.padding[1],  # bottom padding
+                )
+            )
+            self.col_div_cells.append(gc)
+            self.add_child(gc)
 
 
 class FaceFrame(ComponentGrid):
-    """Cabinet FaceFrame component."""    
+    """Cabinet FaceFrame component."""
+
     def __init__(self,
                  box_width: float,
                  box_height: float,
@@ -421,7 +470,7 @@ class ShakerFramedPanel(FaceFrame):
                 0.5 * (Config.FACE_FRAME_MEMBER_WIDTH - Config.OVERLAY_GAP))
         else:
             self.top_bottom_overlay = top_bottom_overlay
-        
+
         if left_overlay is None:
             self.left_overlay = Config.FACE_FRAME_MEMBER_WIDTH - 0.5*Config.OVERLAY_GAP
         else:
@@ -431,10 +480,11 @@ class ShakerFramedPanel(FaceFrame):
             self.right_overlay = self.left_overlay
         else:
             self.right_overlay = right_overlay
-        
+
         super().__init__(box_width=0, box_height=0, box_material=Material.PLY_1_2,
                          width_rail=width_rail, width_stile=width_stile,
-                         width=(opening_width+(self.left_overlay + self.right_overlay)),
+                         width=(opening_width +
+                                (self.left_overlay + self.right_overlay)),
                          height=opening_height+2*self.top_bottom_overlay,
                          *args, **kwargs)
         self.inset_thickness = Config.FRAMED_PANEL_INSET_MATERIAL.thickness
@@ -475,3 +525,10 @@ class ShakerFramedPanel(FaceFrame):
                 )
             )
         )
+
+
+class CabinetCase(ComponentContainer, ABC):
+    box_depth: float
+    box_width_inside: float
+    box_height_inside: float
+    box_inside_origin: Position

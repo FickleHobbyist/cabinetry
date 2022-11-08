@@ -15,10 +15,14 @@ class TreeNode(ABC):
     parent = None
     children = None
 
-    def __init__(self, name: str = 'root', children: list['TreeNode'] = None, *args, **kwargs):
+    def __init__(self, name: str = 'root', parent: 'TreeNode' = None, children: list['TreeNode'] = None, *args, **kwargs):
         super(TreeNode, self).__init__(*args, **kwargs)
         self.name: str = name
-        self.parent: 'TreeNode' = None
+        if parent is not None:
+            parent.add_child(self)
+        else:
+            self.parent: 'TreeNode' = None
+
         self.children: list['TreeNode'] = []
         if children is not None:
             for child in children:
@@ -36,9 +40,9 @@ class TreeNode(ABC):
         """
         assert isinstance(node, TreeNode)
         if node.parent is not None:
-            warn("Child node was added but the provided node already had a parent. \
-                This could be a sign of poorly configured object trees. \
-                The child will be removed from prior parent.")
+            warn("Child node was added but the provided node already had a parent. " +
+                 "This could be a sign of poorly configured object trees. " +
+                 "The child will be removed from prior parent.")
             node.parent.remove_child(node)
         self.children.append(node)
         node.parent = self
@@ -79,7 +83,7 @@ class TreeNode(ABC):
         return f"{self.__class__.__name__}(name={self.name:s}, parent={parentName:s}, children=[{', '.join(childNames):s}])"
 
 
-@dataclass
+@dataclass(eq=True,order=True)
 class Position:
     """Component position relative to parent frame. x=width, y=thickness, z=height"""
     x: float = 0
@@ -93,6 +97,34 @@ class Position:
         :rtype: np.ndarray
         """
         return np.array([self.x, self.y, self.z])
+
+    @staticmethod
+    def from_nparray(arr) -> 'Position':
+        return Position(*arr.tolist())
+
+    def norm(self):
+        return sum(self.to_nparray()**2) ** 0.5
+
+    def __add__(self, other: 'Position'):
+        if isinstance(other, Position):
+            new = self.to_nparray() + other.to_nparray()
+        else:
+            new = self.to_nparray() + other
+        return Position.from_nparray(new)
+
+    def __sub__(self, other: 'Position'):
+        if isinstance(other, Position):
+            new = self.to_nparray() - other.to_nparray()
+        else:
+            new = self.to_nparray() - other
+        return Position.from_nparray(new)
+
+    def __mul__(self, other: 'Position'):
+        if isinstance(other, Position):
+            new = self.to_nparray() * other.to_nparray()
+        else:
+            new = self.to_nparray() * other
+        return Position.from_nparray(new)
 
 
 @dataclass(init=True, repr=True)
