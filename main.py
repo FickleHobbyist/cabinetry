@@ -2,7 +2,8 @@ from cabinetry.base import Orientation, Position
 from cabinetry.config import Config
 from cabinetry.components import ComponentGrid
 from cabinetry.components.uppers import UpperCabinet
-from cabinetry.components.lowers import LowerCabinet
+from cabinetry.components.lowers import LowerCabinet, Pantry
+from cabinetry.components.factory import get_faceframe_factory
 import numpy as np
 
 
@@ -43,35 +44,35 @@ def main():
     lower_cabs.append(
         LowerCabinet(
             width=36,
-            frame_type='N-Drawer',
+            frame_factory=get_faceframe_factory('N-Drawer'),
             frame_args=_N_Drawer_eq_args(4),
         )
     )
     lower_cabs.append(
         LowerCabinet(
             width=33,
-            frame_type='N-Drawer',
+            frame_factory=get_faceframe_factory('N-Drawer'),
             frame_args=_4_Drawer_offset_args,
         )
     )
     lower_cabs.append(
         LowerCabinet(
             width=30,
-            frame_type='N-Drawer',
+            frame_factory=get_faceframe_factory('N-Drawer'),
             frame_args=_3_Drawer_offset_args,
         )
     )
     lower_cabs.append(
         LowerCabinet(
             width=27,
-            frame_type='1-Drawer-2-Door',
+            frame_factory=get_faceframe_factory('1-Drawer-2-Door'),
             frame_args=_1_Drawer_2_Door_args,
         )
     )
     lower_cabs.append(
         LowerCabinet(
             width=24,
-            frame_type='N-Drawer',
+            frame_factory=get_faceframe_factory('N-Drawer'),
             frame_args=_N_Drawer_eq_args(3),
         )
     )
@@ -94,7 +95,7 @@ def main():
         col_type=['fixed']*nCab,
         column_spacing=cabinet_gap,
         row_spacing=row_spacing,
-        padding=(0,0,0,0),
+        padding=(0, 0, 0, 0),
         position=Position(
             x=0,
             y=0,
@@ -124,11 +125,10 @@ def main():
     for lower_cab, cell in zip(lower_cabs, lower_cells):
         cell.add_child(lower_cab)
 
-
     base_frame.add_child(
         LowerCabinet(
             width=60,
-            frame_type='N-Door-Horiz',
+            frame_factory=get_faceframe_factory('N-Door-Horiz'),
             frame_args=_N_Door_eq_args(3, hinge_side_preference='left'),
             position=Position(
                 x=0,
@@ -140,7 +140,7 @@ def main():
     base_frame.add_child(
         LowerCabinet(
             width=60,
-            frame_type='N-Door-Horiz',
+            frame_factory=get_faceframe_factory('N-Door-Horiz'),
             frame_args=_N_Door_eq_args(3, hinge_side_preference='right'),
             position=Position(
                 x=60.25,
@@ -152,7 +152,7 @@ def main():
     base_frame.add_child(
         LowerCabinet(
             width=72,
-            frame_type='N-Door-Horiz',
+            frame_factory=get_faceframe_factory('N-Door-Horiz'),
             frame_args=_N_Door_eq_args(4, hinge_side_preference='alternate'),
             position=Position(
                 x=120.5,
@@ -160,6 +160,33 @@ def main():
                 z=0,
             )
         )
+    )
+    p1 = Pantry(
+        width=36,
+        height=93,
+        parent=base_frame,
+        position=Position(
+            x=-36.25,
+            y=0,
+            z=0,
+        )
+    )
+
+    p2 = Pantry(
+        width=18,
+        height=93,
+        parent=base_frame,
+        position=Position(
+            x=p1.position.x-18.25,
+            y=0,
+            z=0,
+        ),
+        frame_args={
+            'row_dist': [90/3, 1],
+            'row_type': ['fixed', 'weighted'],
+            'col_dist': [1],
+            'col_type': ['weighted'],
+        }
     )
 
     base_frame.render(show_edges=True, opacity=1)
