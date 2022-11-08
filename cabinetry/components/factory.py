@@ -1,8 +1,8 @@
-from multiprocessing.sharedctypes import Value
 from ..base import Position
-from ..components import FaceFrame, GridCell
+from ..components import ComponentGrid, FaceFrame, GridCell, CabinetCase
 from .drawers import BlumDrawer
 from .doors import ShakerDoor
+from .shelves import BandedShelf, StandardShelf
 import numpy as np
 
 
@@ -48,6 +48,7 @@ def _N_Drawer_faceframe(
     side_overhang,
     drawer_dist: list = None,
     dist_type: list[str] = None,
+    *args, **kwargs,
 ) -> FaceFrame:
     drawer_dist = drawer_dist if drawer_dist is not None else [1]*4
     dist_type = dist_type if dist_type is not None else ['weighted']*4
@@ -65,6 +66,7 @@ def _N_Drawer_faceframe(
             y=0,
             z=0,
         ),
+        *args, **kwargs,
     )
 
     _drawer_factory(face.cells)
@@ -149,6 +151,7 @@ def _1_Drawer_2_Door_faceframe(
     side_overhang,
     drawer_dist: list = None,
     dist_type: list[str] = None,
+    *args, **kwargs,
 ) -> FaceFrame:
     drawer_dist = drawer_dist if drawer_dist is not None else [5, 1]
     dist_type = dist_type if dist_type is not None else ['fixed' 'weighted']
@@ -166,9 +169,10 @@ def _1_Drawer_2_Door_faceframe(
             y=0,
             z=0,
         ),
+        *args, **kwargs,
     )
 
-    _drawer_factory(face.cells[0, 0])
+    _drawer_factory(face.cells[0])
 
     subcell: GridCell = face.cells[1, 0]
     door_ff = FaceFrame(
@@ -276,3 +280,57 @@ def _drawer_factory(
                     opening_height=cell.height,
                 )
             )
+
+
+def _standard_shelf_factory(
+    grid: ComponentGrid,
+    case: CabinetCase,
+    **shelf_args
+) -> None:
+    for row_div, i in zip(grid.row_div_cells, range(0, len(grid.row_div_cells))):
+        row_div.add_child(
+            StandardShelf(
+                name=f"shelf_{i:02d}",
+                width=case.box_width_inside,
+                depth=case.box_depth,
+                **shelf_args,
+            )
+        )
+
+
+def _banded_shelf_factory(
+    grid: ComponentGrid,
+    case: CabinetCase,
+    **shelf_args
+) -> None:
+    for row_div, i in zip(grid.row_div_cells, range(0, len(grid.row_div_cells))):
+        row_div.add_child(
+            BandedShelf(
+                name=f"shelf_{i:02d}",
+                width=case.box_width_inside,
+                depth=case.box_depth,
+                **shelf_args,
+            )
+        )
+
+
+_SHELF_FACTORIES = {
+    'standard': _standard_shelf_factory,
+    'banded': _banded_shelf_factory,
+}
+
+
+def register_shelf_factory(name: str, func: callable) -> None:
+    if name not in _SHELF_FACTORIES.keys():
+        _SHELF_FACTORIES[name] = func
+
+
+def get_shelf_factory(name: str) -> callable:
+    if name in _SHELF_FACTORIES.keys():
+        return _SHELF_FACTORIES[name]
+    else:
+        key_str = "\n\t".join(_SHELF_FACTORIES.keys())
+        raise ValueError(
+            f"'{name}' is not a registered FaceFrameFactory. Available factories are:\n\t{key_str}"
+        )
+
