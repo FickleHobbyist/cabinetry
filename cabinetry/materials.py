@@ -9,6 +9,7 @@ class Material(Enum):
     PLY_3_8 = 11 / 32
     PLY_1_4 = 1 / 4
     HARDWOOD_3_4 = 3 / 4
+    HARDWOOD_LIKE_PLY_3_4 = 23 / 32
 
     def __init__(self, thickness):
         self.thickness: float = thickness
