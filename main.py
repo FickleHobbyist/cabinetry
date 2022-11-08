@@ -3,7 +3,7 @@ from cabinetry.config import Config
 from cabinetry.components import ComponentGrid
 from cabinetry.components.uppers import UpperCabinet
 from cabinetry.components.lowers import LowerCabinet, Pantry
-from cabinetry.components.factory import get_faceframe_factory
+from cabinetry.components.factory import get_faceframe_factory, get_shelf_factory
 import numpy as np
 
 
@@ -109,17 +109,30 @@ def main():
     )
 
     upper_cells = base_frame.cells[0, :]
+    nShelves = 3
     for cell in upper_cells:
-        cell.add_child(
-            UpperCabinet(
-                width=cell.width,
-                position=Position(
-                    x=0,
-                    y=Config.LOWERS_DEPTH-Config.UPPERS_DEPTH,
-                    z=0,
-                )
+        cab = UpperCabinet(
+            parent=cell,
+            width=cell.width,
+            position=Position(
+                x=0,
+                y=Config.LOWERS_DEPTH-Config.UPPERS_DEPTH,
+                z=0,
             )
         )
+        shelf_grid = ComponentGrid(
+            parent=cab.case,
+            width=cab.case.box_width_inside,
+            height=cab.case.box_height_inside,
+            position=cab.case.box_inside_origin,
+            row_dist=np.array([1]*(nShelves+1)),
+            row_type=['weighted']*(nShelves+1),
+            col_dist=[1],
+            col_type=['weighted'],
+        )
+        shelf_factory = get_shelf_factory('banded')
+        shelf_factory(grid=shelf_grid, case=cab.case)
+        
 
     lower_cells = base_frame.cells[1, :]
     for lower_cab, cell in zip(lower_cabs, lower_cells):
@@ -189,7 +202,7 @@ def main():
         }
     )
 
-    base_frame.render(show_edges=True, opacity=1)
+    base_frame.render(show_edges=True, opacity=0.99)
 
 
 if __name__ == "__main__":
