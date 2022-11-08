@@ -3,10 +3,10 @@ from ..config import Config
 from ..materials import Material
 from ..base import Position, Orientation
 from .factory import get_faceframe_factory
-from . import ComponentContainer, FaceFrame, RectangularComponent
+from . import ComponentContainer, FaceFrame, RectangularComponent, CabinetCase
 
 
-class UpperCabinetCase(ComponentContainer):
+class UpperCabinetCase(CabinetCase):
     # BOTTOM_INSET: Distance from bottom of cabinet to underside of bottom panel
     BOTTOM_INSET: float = 1.5
     # TOP_INSET: Distance from top of cabinet to topside of top panel
@@ -32,8 +32,17 @@ class UpperCabinetCase(ComponentContainer):
         return None
 
     def construct_components(self) -> None:
-        box_depth = Config.UPPERS_DEPTH - Config.FACE_FRAME_MATERIAL.thickness
-        box_width_inside = self.width - 2*self.material.thickness
+        self.box_depth = Config.UPPERS_DEPTH - Config.FACE_FRAME_MATERIAL.thickness
+        self.box_width_inside = self.width - 2*self.material.thickness
+        self.box_height_inside = (
+            (self.height - (self.TOP_INSET + self.material.thickness)) # lower surface of top panel
+            - (self.BOTTOM_INSET + self.material.thickness) # upper surface of bottom panel
+            )
+        self.box_inside_origin = Position(
+            x=self.material.thickness,
+            y=0,
+            z=self.BOTTOM_INSET+self.material.thickness,
+        )
         top_bottom_dado_depth = 0.5 * self.material.thickness
         back_panel_rabbet_width = 0.5 * self.material.thickness
         back_panel_rabbet_depth = self.MATERIAL_BACK_PANEL.thickness
@@ -42,7 +51,7 @@ class UpperCabinetCase(ComponentContainer):
             RectangularComponent(
                 name='Left Side',
                 material=self.material,
-                width=box_depth,
+                width=self.box_depth,
                 height=self.height,
                 position=Position(
                     x=self.material.thickness,
@@ -61,7 +70,7 @@ class UpperCabinetCase(ComponentContainer):
             RectangularComponent(
                 name='Right Side',
                 material=self.material,
-                width=box_depth,
+                width=self.box_depth,
                 height=self.height,
                 position=Position(
                     x=self.width,
@@ -80,8 +89,8 @@ class UpperCabinetCase(ComponentContainer):
             RectangularComponent(
                 name='Top',
                 material=self.material,
-                width=box_width_inside + 2*top_bottom_dado_depth,
-                height=box_depth - back_panel_rabbet_depth,
+                width=self.box_width_inside + 2*top_bottom_dado_depth,
+                height=self.box_depth - back_panel_rabbet_depth,
                 position=Position(
                     x=self.material.thickness-top_bottom_dado_depth,
                     y=0,
@@ -99,8 +108,8 @@ class UpperCabinetCase(ComponentContainer):
             RectangularComponent(
                 name='Bottom',
                 material=self.material,
-                width=box_width_inside + 2*top_bottom_dado_depth,
-                height=box_depth - back_panel_rabbet_depth,
+                width=self.box_width_inside + 2*top_bottom_dado_depth,
+                height=self.box_depth - back_panel_rabbet_depth,
                 position=Position(
                     x=self.material.thickness-top_bottom_dado_depth,
                     y=0,
@@ -118,11 +127,11 @@ class UpperCabinetCase(ComponentContainer):
             RectangularComponent(
                 name='Bottom Nailer',
                 material=self.MATERIAL_NAILER,
-                width=box_width_inside,
+                width=self.box_width_inside,
                 height=self.NAILER_WIDTH,
                 position=Position(
                     x=self.material.thickness,
-                    y=box_depth -
+                    y=self.box_depth -
                     (self.MATERIAL_BACK_PANEL.thickness
                      + self.MATERIAL_NAILER.thickness),
                     z=self.BOTTOM_INSET + self.material.thickness,
@@ -139,11 +148,11 @@ class UpperCabinetCase(ComponentContainer):
             RectangularComponent(
                 name='Top Nailer',
                 material=self.MATERIAL_NAILER,
-                width=box_width_inside,
+                width=self.box_width_inside,
                 height=self.NAILER_WIDTH,
                 position=Position(
                     x=self.material.thickness,
-                    y=box_depth -
+                    y=self.box_depth -
                     (self.MATERIAL_BACK_PANEL.thickness
                      + self.MATERIAL_NAILER.thickness),
                     z=self.height -
@@ -161,11 +170,11 @@ class UpperCabinetCase(ComponentContainer):
             RectangularComponent(
                 name='Back Panel',
                 material=self.MATERIAL_BACK_PANEL,
-                width=box_width_inside + 2*back_panel_rabbet_width,
+                width=self.box_width_inside + 2*back_panel_rabbet_width,
                 height=self.height,
                 position=Position(
                     x=self.material.thickness - back_panel_rabbet_width,
-                    y=box_depth-back_panel_rabbet_depth,
+                    y=self.box_depth-back_panel_rabbet_depth,
                     z=0
                 ),
                 orientation=Orientation(
