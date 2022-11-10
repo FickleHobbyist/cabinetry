@@ -83,7 +83,7 @@ class TreeNode(ABC):
         return f"{self.__class__.__name__}(name={self.name:s}, parent={parentName:s}, children=[{', '.join(childNames):s}])"
 
 
-@dataclass(eq=True,order=True)
+@dataclass(eq=True, order=True)
 class Position:
     """Component position relative to parent frame. x=width, y=thickness, z=height"""
     x: float = 0
@@ -164,13 +164,13 @@ class Orientation:
 
     def in_radians(self):
         if self.units == 'deg':
-            return Orientation(*tuple(self.to_nparray() * pi/180))
+            return Orientation(*tuple(self.to_nparray() * pi/180), units='rad')
         else:
             return copy.deepcopy(self)
 
     def in_degrees(self):
         if self.units == 'rad':
-            return Orientation(*tuple(self.to_nparray() * 180/pi))
+            return Orientation(*tuple(self.to_nparray() * 180/pi), units='deg')
         else:
             return copy.deepcopy(self)
 
@@ -186,6 +186,13 @@ class Poseable(TreeNode, ABC):
         super(Poseable, self).__init__(*args, **kwargs)
         self.position = position if position is not None else Position()
         self.orientation = orientation if orientation is not None else Orientation()
+
+    def get_global_pose(self):
+        M = self.get_frame_to_base()
+        T, R, Z, S = tform.affines.decompose(M)
+        zyx = tform.euler.mat2euler(R, axes='rzyx')
+        orientation = Orientation(*zyx[::-1], units='rad')
+        return (Position(*T), orientation.in_degrees())
 
     def get_frame(self) -> np.ndarray:
         """Return a 4x4 homogenous transform representing the pose in
