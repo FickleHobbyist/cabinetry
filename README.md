@@ -1,6 +1,14 @@
 # Cabinetry
 This repository contains geometric representations of household cabinetry, which can be utilized to estimate material quantities. It was created as an exercise in learning python in support of estimating material cost for an upcoming kitchen renovation. It is absolutely not a representation of the most efficient means of generating parametric cabinet geometry. Nevertheless, we press on...
 
+# Example
+
+## Cabinetry Model (Python)
+![Python Cabinetry Model](doc/Kitchen%20Model%20Python%20Iso.png)
+
+## Reference Model (Sketchup)
+![Sketchup Model](doc/Kitchen%20Model%20Sketchup%20Iso.png)
+
 # To-Do
 - [x] Create DrawerFace component.
 - [x] Create DrawerBox component.
