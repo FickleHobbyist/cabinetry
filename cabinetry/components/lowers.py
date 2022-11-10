@@ -14,11 +14,11 @@ class LowerCabinetCase(CabinetCase):
     STRETCHER_WIDTH = 2.5
     FLOOR_DADO_DEPTH = 0.375
     DADO_HEIGHT_ABOVE_TOEKICK_CUTOUT = 0.5
-    CABINET_DEPTH = Config.LOWERS_DEPTH
-
+    
     def __init__(self,
                  width: float,
                  height: float = None,
+                 cabinet_depth: float = Config.LOWERS_DEPTH,
                  name='LowerCabinetCase',
                  *args, **kwargs) -> None:
         clr = kwargs.pop('color', Config.CABINET_CASE_COLOR)
@@ -27,6 +27,7 @@ class LowerCabinetCase(CabinetCase):
         self.width = width
         self.height = height if height is not None else (
             Config.COUNTER_HEIGHT - Config.COUNTERTOP_THICKNESS)
+        self.cabinet_depth = cabinet_depth
         self.material = Config.LOWERS_CASE_MATERIAL
 
         self.construct_components()
@@ -34,7 +35,7 @@ class LowerCabinetCase(CabinetCase):
     def construct_components(self) -> None:
         # Top surface of bottom panel
         self.bottom_height_above_floor = self.TOEKICK_HEIGHT + Config.FACE_FRAME_MEMBER_WIDTH
-        self.box_depth = self.CABINET_DEPTH - Config.FACE_FRAME_MATERIAL.thickness
+        self.box_depth = self.cabinet_depth - Config.FACE_FRAME_MATERIAL.thickness
         self.box_width_inside = self.width - 2*self.material.thickness
         self.box_height_inside = (
             (self.height - self.material.thickness)  # inside of top stretcher
@@ -213,8 +214,10 @@ class LowerCabinetCase(CabinetCase):
 class LowerCabinet(ComponentContainer):
     """Container class composed of LowerCabinetCase, FaceFrame, DrawerFaces, etc."""
 
-    def __init__(self, width: float = 36,
+    def __init__(self,
+                 width: float = 36,
                  height: float = 34.5,
+                 depth: float = Config.LOWERS_DEPTH,
                  name='LowerCabinet',
                  frame_factory: callable = get_faceframe_factory('N-Drawer'),
                  frame_args: dict = None,
@@ -223,6 +226,7 @@ class LowerCabinet(ComponentContainer):
                                            *args, **kwargs)
         self.width = width
         self.height = height
+        self.depth = depth
         self.frame_factory = frame_factory
         self.frame_args = frame_args if frame_args is not None else {
             'drawer_dist': [1]*4,
@@ -235,6 +239,7 @@ class LowerCabinet(ComponentContainer):
         self.case = LowerCabinetCase(
             width=self.width,
             height=self.height,
+            cabinet_depth=self.depth,
             color=Config.CABINET_CASE_COLOR,
             position=Position(  # x=width, y=thickness, z=height
                 x=0,
