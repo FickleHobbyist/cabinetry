@@ -10,6 +10,24 @@ import numpy as np
 
 class ComponentContainer(RenderTree, Poseable):
     """Useful for categorizing groups of components
+    """
+
+    def __init__(self, *args, **kwargs):
+        clr = kwargs.pop('color', None)
+        super(ComponentContainer, self).__init__(color=clr, *args, **kwargs)
+
+
+class GhostComponent(ComponentContainer):
+    """Useful for spacing components out"""
+
+    def __init__(self, width=0, height=0, *args, **kwargs):
+        self.width = width
+        self.height = height
+        super().__init__(*args, **kwargs)
+
+
+class RectangularComponent(RenderTree, Poseable):
+    """Low level component which produces renderable geometry
 
     :param width: width of component
     :type width: float
@@ -18,16 +36,7 @@ class ComponentContainer(RenderTree, Poseable):
     :param material: Material class of component. See cabinetry.materials.Material.
     :type material: Material
     :return: Constructed object
-    :rtype: RectangularComponent
-    """
-
-    def __init__(self, *args, **kwargs):
-        clr = kwargs.pop('color', None)
-        super(ComponentContainer, self).__init__(color=clr, *args, **kwargs)
-
-
-class RectangularComponent(RenderTree, Poseable):
-    """Low level component which produces renderable geometry"""
+    :rtype: RectangularComponent"""
 
     def __init__(self, width: float, height: float, material: Material, **kwargs) -> 'RectangularComponent':
         """Class constructor"""
@@ -154,8 +163,8 @@ class GridCell(ComponentContainer):
 
     @staticmethod
     def spanning(cells: np.ndarray, *args, **kwargs):
-        bottom_left_cell = cells[-1,0]
-        top_right_cell = cells[0,-1]
+        bottom_left_cell = cells[-1, 0]
+        top_right_cell = cells[0, -1]
         diag = top_right_cell.top_right - bottom_left_cell.position
         return GridCell(
             width=diag.x,
@@ -163,7 +172,6 @@ class GridCell(ComponentContainer):
             position=bottom_left_cell.position,
             *args, **kwargs,
         )
-        
 
 
 class ComponentGrid(ComponentContainer):
