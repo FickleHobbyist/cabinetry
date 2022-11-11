@@ -36,7 +36,7 @@ class ShakerDoor(ShakerFramedPanel):
                 hinge_side_overlay = large_overlay
             case _:
                 raise ValueError(
-                    f"arg 'hinge_stile' must be 'single' or 'double'")
+                    f"arg 'hinge_stile_factor' must be 'single' or 'double'")
 
         if is_paired:
             other_overlay = small_overlay
