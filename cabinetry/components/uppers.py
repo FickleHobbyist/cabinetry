@@ -11,7 +11,7 @@ class UpperCabinetCase(CabinetCase):
     BOTTOM_INSET: float = 1.5
     # TOP_INSET: Distance from top of cabinet to topside of top panel
     TOP_INSET: float = 1.
-    MATERIAL_NAILER: Material = Material.HARDWOOD_3_4
+    MATERIAL_NAILER: Material = Material.HARDWOOD_PAINT_3_4
     MATERIAL_BACK_PANEL: Material = Material.PLY_1_4
     NAILER_WIDTH: float = 2.5
 

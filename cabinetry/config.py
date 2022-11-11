@@ -6,12 +6,12 @@ class Config:
     # \/\/ General parameters \/\/
     CABINET_CASE_COLOR: str = '#e6cd83'
     FACE_FRAME_COLOR: str = '#6e583b'
-    FACE_FRAME_MATERIAL: Material = Material.HARDWOOD_3_4
+    FACE_FRAME_MATERIAL: Material = Material.HARDWOOD_PAINT_3_4
     FACE_FRAME_MEMBER_WIDTH: float = 1.5
     FACE_FRAME_OVERHANG: float = 1/8
     SHELF_COLOR: str = '#e6cd83'
     SHELF_MATERIAL: Material = Material.PLY_3_4
-    SHELF_BANDING_MATERIAL: Material = Material.HARDWOOD_LIKE_PLY_3_4
+    SHELF_BANDING_MATERIAL: Material = Material.HARDWOOD_BANDING_PLY_3_4
     # SHELF_BANDING_THICKNESS: Thickness of a thin strip of material
     # applied to the front edge of a shelf
     SHELF_BANDING_THICKNESS: float = 3/8

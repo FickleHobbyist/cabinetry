@@ -71,7 +71,7 @@ class ShakerDoor(ShakerFramedPanel):
             RectangularComponent(
                 width=pull_width,
                 height=pull_height,
-                material=Material.HARDWOOD_3_4,
+                material=Material.HARDWOOD_PAINT_3_4,
                 position=hinge_pos,
                 color='red',
             )

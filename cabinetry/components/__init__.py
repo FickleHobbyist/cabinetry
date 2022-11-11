@@ -311,7 +311,8 @@ class FaceFrame(ComponentGrid):
                  box_material: Material,
                  width_rail: float = Config.FACE_FRAME_MEMBER_WIDTH,
                  width_stile: float = Config.FACE_FRAME_MEMBER_WIDTH,
-                 side_overhang: float = 1/8,
+                 side_overhang: float = Config.FACE_FRAME_OVERHANG,
+                 material: Material = Config.FACE_FRAME_MATERIAL,
                  color: pv.color_like = Config.FACE_FRAME_COLOR,
                  *args, **kwargs):
         """Object constructor
@@ -346,13 +347,14 @@ class FaceFrame(ComponentGrid):
         self.width_rail = width_rail
         self.width_stile = width_stile
         self.side_overhang = side_overhang
-        self.material = Config.FACE_FRAME_MATERIAL
+        self.material = material
         self.color = color
 
     def construct_test_components(self):
         # \/\/ Testing Only \/\/
         # Use DFS to add RectangularComponents to lowest level GridCell in FaceFrame tree
-        stack = collections.deque(self.cells.reshape(self.cells.size,).tolist())
+        stack = collections.deque(
+            self.cells.reshape(self.cells.size,).tolist())
         i = 0
         while stack:
             item = stack.pop()
@@ -491,7 +493,7 @@ class ShakerFramedPanel(FaceFrame):
         else:
             self.right_overlay = right_overlay
 
-        super().__init__(box_width=0, box_height=0, box_material=Material.PLY_1_2,
+        super().__init__(box_width=0, box_height=0, box_material=Material.NONE_3_4,
                          width_rail=width_rail, width_stile=width_stile,
                          width=(opening_width +
                                 (self.left_overlay + self.right_overlay)),

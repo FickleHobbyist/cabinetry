@@ -9,6 +9,8 @@ from cabinetry.components.factory import _door_factory, _drawer_factory, get_fac
 from cabinetry.components.decorators import faceframe_with_shelves
 import numpy as np
 
+from cabinetry.materials import Material
+
 
 TOP_DRAWER_HEIGHT = 5
 
@@ -241,6 +243,7 @@ def construct_kitchen():
                 frame_args={
                     'door_dist': [1, 1],
                     'dist_type': ['weighted', 'weighted'],
+                    'material': Material.HARDWOOD_STAIN_3_4,
                 },
                 position=Position(
                     x=(27 + 0)*i,
@@ -260,6 +263,7 @@ def construct_kitchen():
             'row_type': ['weighted'],
             'col_dist': [1],
             'col_type': ['weighted'],
+            'material': Material.HARDWOOD_STAIN_3_4,
         },
         position=Position(
             x=(27 + 0)*3+18,
@@ -295,6 +299,7 @@ def construct_kitchen():
             frame_args={
                 'drawer_dist': [*[TOP_DRAWER_HEIGHT]*3, 1],
                 'dist_type': [*['fixed']*3, 'weighted'],
+                'material': Material.HARDWOOD_STAIN_3_4,
             },
             position=Position(
                 x=(27 + 0)*3+18,
@@ -317,6 +322,7 @@ def construct_kitchen():
             frame_args={
                 'drawer_dist': [TOP_DRAWER_HEIGHT, 1],
                 'dist_type': ['fixed', 'weighted'],
+                'material': Material.HARDWOOD_STAIN_3_4,
             },
             position=Position(
                 x=island.children[-1].position.x -
@@ -355,6 +361,7 @@ def construct_kitchen():
             'row_type': ['fixed', 'weighted'],
             'col_dist': [1],
             'col_type': ['weighted'],
+            'material': Material.HARDWOOD_STAIN_3_4,
         },
     )
     under_sink_cell = sink_cab.face.cells[1, 0]

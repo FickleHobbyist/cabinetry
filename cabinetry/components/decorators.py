@@ -19,7 +19,7 @@ def faceframe_with_shelves(
                     depth=case.box_depth,
                     position=Position(
                         x=-0.5*abs(case.box_width_inside-row_div.width),
-                        y=Config.FACE_FRAME_MATERIAL.thickness,
+                        y=face.material.thickness,
                         z=row_div.height - Config.SHELF_MATERIAL.thickness,
                     )
                 )
