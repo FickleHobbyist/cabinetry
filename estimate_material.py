@@ -1,9 +1,11 @@
-from cabinetry.components.lowers import LowerCabinetCase
-from cabinetry.components.shelves import BandedShelf, StandardShelf
-from cabinetry.components.uppers import UpperCabinetCase
-from kitchen import construct_kitchen
-from cabinetry.components import FaceFrame, RectangularComponent
+from cabinetry.components.uppers import UpperCabinet
+from cabinetry.components.lowers import LowerCabinet
+from cabinetry.components.shelves import StandardShelf
+from cabinetry.components.drawers import BlumDrawer
+from cabinetry.components.doors import ShakerDoor
+from cabinetry.components import RectangularComponent
 from cabinetry.materials import Material
+from kitchen import construct_kitchen
 import collections
 import itertools
 import math
@@ -28,7 +30,22 @@ def component_keyfunc(cmp):
 
 def main():
     base_frame = construct_kitchen()
-    all_cmp = find_instances(base_frame, RectangularComponent)
+    items_to_count = [
+        BlumDrawer,
+        ShakerDoor,
+        StandardShelf,
+        LowerCabinet,
+        UpperCabinet,
+        RectangularComponent,
+    ]
+    counts = {}
+    instances = {}
+    for item in items_to_count:
+        instances[item] = find_instances(base_frame, item)
+        counts[item] = len(instances[item])
+        print(f"Found {counts[item]} instances of {item.__name__}")
+
+    all_cmp = instances[RectangularComponent]
     all_cmp_sorted = sorted(all_cmp, key=component_keyfunc)
     material_grps = itertools.groupby(all_cmp_sorted, key=component_keyfunc)
     for material_name, grp in material_grps:
