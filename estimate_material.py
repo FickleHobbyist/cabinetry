@@ -38,6 +38,7 @@ def main():
         UpperCabinet,
         RectangularComponent,
     ]
+    print("-"*10 + "Component Summary" + "-"*10)
     counts = {}
     instances = {}
     for item in items_to_count:
@@ -45,6 +46,7 @@ def main():
         counts[item] = len(instances[item])
         print(f"Found {counts[item]} instances of {item.__name__}")
 
+    print("-"*10 + "Material Summary" + "-"*10)
     all_cmp = instances[RectangularComponent]
     all_cmp_sorted = sorted(all_cmp, key=component_keyfunc)
     material_grps = itertools.groupby(all_cmp_sorted, key=component_keyfunc)
@@ -59,8 +61,8 @@ def main():
                         (material.unit_size * material.unit_efficiency))
 
         print(
-            f"material={material_name}, "
-            + f"total {material.unit_type}={total[material.unit_type]:.0f}, "
+            f"material = {material_name}, "
+            + f"total {material.unit_type} = {total[material.unit_type]:.0f}, "
             + f"requires {qty:d} {material.unit_descriptor} assuming "
             + f"{100*material.unit_efficiency:.0f}% efficiency per unit")
 
