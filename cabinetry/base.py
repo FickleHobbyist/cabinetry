@@ -308,7 +308,10 @@ class RenderTree(TreeNode):
                 visited.append(node)
 
         p.enable_point_picking(
-            callback=_point_click_callback, left_clicking=False, pickable_window=False)
+            callback=_point_click_callback,
+            left_clicking=False,
+            pickable_window=False,
+            tolerance=0.001)
         p.show()
 
     def get_pv_mesh(self):
