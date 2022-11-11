@@ -69,8 +69,16 @@ class BlumDrawer(ComponentContainer):
         super().__init__(*args, **kwargs)
         self.opening_width = opening_width
         self.opening_height = opening_height
-        self.box_material = box_material if box_material is not None else Material.PLY_1_2
-        self.bottom_material = bottom_material if bottom_material is not None else Material.PLY_1_4
+        
+        if opening_width >= 24:
+            default_box_material = Material.PLY_3_4
+            default_bottom_material = Material.PLY_1_2
+        else:
+            default_box_material = Material.PLY_1_2
+            default_bottom_material = Material.PLY_1_4
+            
+        self.box_material = box_material if box_material is not None else default_box_material
+        self.bottom_material = bottom_material if bottom_material is not None else default_bottom_material
         self.box_height = box_height if box_height is not None else (
             opening_height - 25/32)
         if self.box_height > (opening_height - 25/32):

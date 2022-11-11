@@ -16,7 +16,7 @@ This repository contains geometric representations of household cabinetry, which
 - [x] Establish method for connecting DrawerBox, DrawerFace, Door to GridCells in each FaceFrame.
 - [x] Create config class for common.
 - [x] Create upper cabinet box.
-- [ ] Fine tune material selection for drawer boxes based on drawer size. Larger drawers need thicker material for the box.
+- [x] Fine tune material selection for drawer boxes based on drawer size. Larger drawers need thicker material for the box.
 - [ ] Establish method for generating a bill of materials
     - For rough estimating, compute total area and volume in each material category.
     - Use fudge factor on total ply area / (48x96) for number of sheets required.
@@ -27,6 +27,7 @@ This repository contains geometric representations of household cabinetry, which
 - [ ] Associate unit with material
 - [ ] Associate minimum unit size with material
     - For example, plywood would be 48x96 = 4608 sq in
+- [ ] Make UpperCornerCabinet class to better resemble corner cabinet geometry
 - [x] Establish method for adding shelves
     - Probably make use of ComponentGrid and some of the specialized FaceFrame code for creating items in between GridCells
 - [x] Make & implement a factory function for drawers
