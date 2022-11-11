@@ -511,8 +511,9 @@ def construct_kitchen():
         )
     )
 
-    base_frame.render()
+    return base_frame
 
 
 if __name__ == "__main__":
-    construct_kitchen()
+    base_frame = construct_kitchen()
+    base_frame.render()
