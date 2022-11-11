@@ -61,7 +61,7 @@ def construct_kitchen():
             width=36,
             height=93,
             frame_args={
-                'row_dist': [90/3, 1],
+                'row_dist': [93/3, 1],
                 'row_type': ['fixed', 'weighted'],
                 'col_dist': [1]*2,
                 'col_type': ['weighted']*2,
