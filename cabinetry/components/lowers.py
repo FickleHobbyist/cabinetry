@@ -237,12 +237,12 @@ class LowerCabinet(ComponentContainer):
     def construct_components(self):
         self.clear_children()
         self.case = LowerCabinetCase(
-            width=self.width,
+            width=self.width - 2*Config.FACE_FRAME_OVERHANG,
             height=self.height,
             cabinet_depth=self.depth,
             color=Config.CABINET_CASE_COLOR,
             position=Position(  # x=width, y=thickness, z=height
-                x=0,
+                x=Config.FACE_FRAME_OVERHANG,
                 y=Config.FACE_FRAME_MATERIAL.thickness,
                 z=0,
             ),
@@ -251,15 +251,15 @@ class LowerCabinet(ComponentContainer):
         self.add_child(self.case)
 
         if self.frame_factory is not None:
-            faceframe_side_overhang = 1/8
+            
             # ff_factory = get_faceframe_factory(self.frame_type)
 
             self.face: FaceFrame = self.frame_factory(
-                box_width=self.width,
+                box_width=self.case.width,
                 box_height=(self.height -
                             (self.case.bottom_height_above_floor-self.case.material.thickness)),
                 box_material=self.case.material,
-                side_overhang=faceframe_side_overhang,
+                side_overhang=Config.FACE_FRAME_OVERHANG,
                 parent=self,
                 **self.frame_args,
             )

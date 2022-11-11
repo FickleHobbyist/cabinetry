@@ -18,12 +18,14 @@ class UpperCabinetCase(CabinetCase):
     def __init__(self,
                  width: float,
                  height: float = None,
+                 cabinet_depth: float = Config.UPPERS_DEPTH,
                  name: str = 'UpperCabintCase',
                  *args, **kwargs) -> 'UpperCabinetCase':
         clr = kwargs.pop('color', Config.CABINET_CASE_COLOR)
         super().__init__(name=name, color=clr, *args, **kwargs)
         self.width = width
         self.height = height if height is not None else Config.UPPERS_HEIGHT
+        self.cabinet_depth = cabinet_depth
         self.material = Config.LOWERS_CASE_MATERIAL
 
         self.construct_components()
@@ -32,7 +34,7 @@ class UpperCabinetCase(CabinetCase):
         return None
 
     def construct_components(self) -> None:
-        self.box_depth = Config.UPPERS_DEPTH - Config.FACE_FRAME_MATERIAL.thickness
+        self.box_depth = self.cabinet_depth - Config.FACE_FRAME_MATERIAL.thickness
         self.box_width_inside = self.width - 2*self.material.thickness
         self.box_height_inside = (
             (self.height - (self.TOP_INSET + self.material.thickness)) # lower surface of top panel
@@ -195,8 +197,9 @@ class UpperCabinet(ComponentContainer):
 
     def __init__(self, width: float,
                  height: float = Config.UPPERS_HEIGHT,
+                 depth: float = Config.UPPERS_DEPTH,
                  name='UpperCabinet',
-                 frame_type: str = 'N-Door-Horiz',
+                 frame_factory: callable = get_faceframe_factory('N-Door-Horiz'),
                  frame_args: dict = {'door_dist': [
                      1]*2, 'dist_type': ['weighted']*2},
                  *args, **kwargs):
@@ -204,34 +207,33 @@ class UpperCabinet(ComponentContainer):
                          *args, **kwargs)
         self.width = width
         self.height = height
-        self.frame_type = frame_type
+        self.depth = depth
+        self.frame_factory = frame_factory
         self.frame_args = frame_args
         self.construct_components()
 
     def construct_components(self):
         self.case = UpperCabinetCase(
-            width=self.width,
+            width=self.width - 2*Config.FACE_FRAME_OVERHANG,
             height=self.height,
+            cabinet_depth=self.depth,
             color=Config.CABINET_CASE_COLOR,
             position=Position(  # x=width, y=thickness, z=height
-                x=0,
+                x=Config.FACE_FRAME_OVERHANG,
                 y=Config.FACE_FRAME_MATERIAL.thickness,
                 z=0,
             ),
         )
         self.add_child(self.case)
-
-        faceframe_side_overhang = 1/8
-        ff_factory = get_faceframe_factory(self.frame_type)
-
+        
         width_stile = Config.FACE_FRAME_MEMBER_WIDTH
 
-        self.face: FaceFrame = ff_factory(
-            box_width=self.width,
+        self.face: FaceFrame = self.frame_factory(
+            box_width=self.case.width,
             box_height=0,  # ignore
             height=self.height,
             box_material=self.case.material,
-            side_overhang=faceframe_side_overhang,
+            side_overhang=Config.FACE_FRAME_OVERHANG,
             padding=(
                 width_stile,
                 self.case.BOTTOM_INSET+self.case.material.thickness,

@@ -32,7 +32,7 @@ def _MxN_Empty_faceframe(
         col_dist=np.array(col_dist),
         col_type=col_type,
         position=Position(  # x=width, y=thickness, z=height
-            x=-side_overhang,
+            x=0,
             y=0,
             z=0,
         ),
@@ -62,7 +62,7 @@ def _N_Drawer_faceframe(
         col_dist=np.array([1]),
         col_type=['weighted'],
         position=Position(  # x=width, y=thickness, z=height
-            x=-side_overhang,
+            x=0,
             y=0,
             z=0,
         ),
@@ -97,7 +97,7 @@ def _N_Door_vertical_faceframe(
         col_dist=door_dist,
         col_type=dist_type,
         position=Position(  # x=width, y=thickness, z=height
-            x=-side_overhang,
+            x=0,
             y=0,
             z=0,
         ),
@@ -132,7 +132,7 @@ def _N_Door_horizontal_faceframe(
         col_dist=door_dist,
         col_type=dist_type,
         position=Position(  # x=width, y=thickness, z=height
-            x=-side_overhang,
+            x=0,
             y=0,
             z=0,
         ),
@@ -165,7 +165,7 @@ def _1_Drawer_2_Door_faceframe(
         col_dist=np.array([1]),
         col_type=['weighted'],
         position=Position(  # x=width, y=thickness, z=height
-            x=-side_overhang,
+            x=0,
             y=0,
             z=0,
         ),
@@ -255,6 +255,7 @@ def _door_factory(
                 ShakerDoor(
                     hinge_side=LR,
                     hinge_stile_factor=hs,
+                    is_paired=True if nDoors > 1 else False,
                     opening_width=cell.width,
                     opening_height=cell.height,
                 )
