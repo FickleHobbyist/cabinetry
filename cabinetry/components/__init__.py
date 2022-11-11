@@ -6,6 +6,7 @@ from ..base import Poseable, Position, RenderTree
 from ..materials import Material
 import pyvista as pv
 import numpy as np
+import collections
 
 
 class ComponentContainer(RenderTree, Poseable):
@@ -351,7 +352,7 @@ class FaceFrame(ComponentGrid):
     def construct_test_components(self):
         # \/\/ Testing Only \/\/
         # Use DFS to add RectangularComponents to lowest level GridCell in FaceFrame tree
-        stack = self.cells.reshape(self.cells.size,).tolist()
+        stack = collections.deque(self.cells.reshape(self.cells.size,).tolist())
         i = 0
         while stack:
             item = stack.pop()
@@ -374,7 +375,8 @@ class FaceFrame(ComponentGrid):
     def construct_components(self):
         # DFS on to find FaceFrame components in FaceFrame tree
         # stack = self.cells.reshape(self.cells.size,).tolist()
-        stack = [self]
+        stack = collections.deque()
+        stack.append(self)
         while stack:
             item = stack.pop()  # GridCell, FaceFrame, or possibly another component item
             if item.children:  # not empty
