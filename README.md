@@ -1,9 +1,30 @@
 # Cabinetry
 This repository contains geometric representations of household cabinetry, which can be utilized to estimate material quantities. It was created as an exercise in learning python in support of estimating material cost for an upcoming kitchen renovation. It is absolutely not a representation of the most efficient means of generating parametric cabinet geometry. Nevertheless, we press on...
 
-# Example
+# Getting Started
+Clone this repository to your local drive, [create a virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment), then [install the requirements](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-requirements-files) using `./requirements.txt`
+
+# Example Output
 
 ## Cabinetry Model (Python)
+From `>> py .\estimate_material.py`, the following output is produced:
+
+    ----------Component Summary----------
+    Found 22 instances of BlumDrawer
+    Found 28 instances of ShakerDoor
+    Found 24 instances of StandardShelf
+    Found 19 instances of LowerCabinet
+    Found 6 instances of UpperCabinet
+    Found 1087 instances of RectangularComponent
+    ----------Material Summary----------
+    material = HARDWOOD_BANDING_PLY_3_4, total volume = 119, requires 2 board ft assuming 80% efficiency per unit
+    material = HARDWOOD_PAINT_3_4, total volume = 16847, requires 147 board ft assuming 80% efficiency per unit
+    material = HARDWOOD_STAIN_3_4, total volume = 1048, requires 10 board ft assuming 80% efficiency per unit
+    material = PLY_1_2, total area = 8421, requires 3 sheets assuming 80% efficiency per unit
+    material = PLY_1_4, total area = 30753, requires 9 sheets assuming 80% efficiency per unit
+    material = PLY_3_4, total area = 76526, requires 21 sheets assuming 80% efficiency per unit
+    
+
 ![Python Cabinetry Model](doc/Kitchen%20Model%20Python%20Iso.png)
 
 ## Reference Model (Sketchup)
