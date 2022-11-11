@@ -2,7 +2,9 @@
 This repository contains geometric representations of household cabinetry, which can be utilized to estimate material quantities. It was created as an exercise in learning python in support of estimating material cost for an upcoming kitchen renovation. It is absolutely not a representation of the most efficient means of generating parametric cabinet geometry. Nevertheless, we press on...
 
 # Getting Started
-Clone this repository to your local drive, [create a virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment), then [install the requirements](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-requirements-files) using `./requirements.txt`
+Clone this repository to your local drive, [create a virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment), then [install the requirements](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#using-requirements-files) using `./requirements.txt`.
+
+This project was developed using Python 3.10.7.
 
 # Example Output
 
