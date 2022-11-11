@@ -17,15 +17,15 @@ This repository contains geometric representations of household cabinetry, which
 - [x] Create config class for common.
 - [x] Create upper cabinet box.
 - [x] Fine tune material selection for drawer boxes based on drawer size. Larger drawers need thicker material for the box.
-- [ ] Establish method for generating a bill of materials
+- [x] Establish method for generating a bill of materials
     - For rough estimating, compute total area and volume in each material category.
     - Use fudge factor on total ply area / (48x96) for number of sheets required.
     - Use total volume to estimate board feet of hardwood type materials required plus fudge factor for waste.
 - [x] Adjust drawer box components to account for length increment due to rabbets & dadoes.
 - [ ] Refactor color selections to be based on Material class
 - [ ] Create Materials for specific wood species
-- [ ] Associate unit with material
-- [ ] Associate minimum unit size with material
+- [x] Associate unit with material
+- [x] Associate minimum unit size with material
     - For example, plywood would be 48x96 = 4608 sq in
 - [ ] Make UpperCornerCabinet class to better resemble corner cabinet geometry
 - [x] Establish method for adding shelves
