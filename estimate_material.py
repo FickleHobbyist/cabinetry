@@ -6,9 +6,11 @@ from cabinetry.components.doors import ShakerDoor
 from cabinetry.components import RectangularComponent
 from cabinetry.materials import Material
 from kitchen import construct_kitchen
+import pandas as pd
 import collections
 import itertools
 import math
+import sqlite3
 
 
 def find_instances(node, cls):
@@ -27,6 +29,16 @@ def find_instances(node, cls):
 def component_keyfunc(cmp):
     return cmp.material.name
 
+def component_dict_serializer(cmp):
+    return {
+        'name': cmp.name,
+        'width': cmp.width,
+        'height': cmp.height,
+        'thickness': cmp.material.thickness,
+        'area': cmp.area,
+        'volume': cmp.volume,
+        'material_name': cmp.material.name
+    }
 
 def main():
     base_frame = construct_kitchen()
@@ -49,11 +61,20 @@ def main():
     print("-"*10 + "Material Summary" + "-"*10)
     all_cmp = instances[RectangularComponent]
     all_cmp_sorted = sorted(all_cmp, key=component_keyfunc)
+
+    cmp_df = pd.DataFrame.from_dict(list(map(component_dict_serializer, all_cmp_sorted)))
+
+    with sqlite3.connect('components.db') as conn:
+        cmp_df.to_sql('components', conn, method='multi', if_exists='replace')
+
+
     material_grps = itertools.groupby(all_cmp_sorted, key=component_keyfunc)
     for material_name, grp in material_grps:
         total = {'area': 0, 'volume': 0}
         material = Material[material_name]
+        component_list = []
         for component in grp:
+            component_list.append(component)
             total['area'] += component.area
             total['volume'] += component.volume
 
