@@ -12,7 +12,7 @@ class UpperCabinetCase(CabinetCase):
     # TOP_INSET: Distance from top of cabinet to topside of top panel
     TOP_INSET: float = 1.
     MATERIAL_NAILER: Material = Material.HARDWOOD_PAINT_3_4
-    MATERIAL_BACK_PANEL: Material = Material.PLY_1_4
+    MATERIAL_BACK_PANEL: Material = Material.PLY_1_4_LITERAL_4x8
     NAILER_WIDTH: float = 2.5
 
     def __init__(self,

@@ -10,7 +10,7 @@ class Config:
     FACE_FRAME_MEMBER_WIDTH: float = 1.5
     FACE_FRAME_OVERHANG: float = 1/8
     SHELF_COLOR: str = '#e6cd83'
-    SHELF_MATERIAL: Material = Material.PLY_3_4
+    SHELF_MATERIAL: Material = Material.PLY_3_4_4x8
     SHELF_BANDING_MATERIAL: Material = Material.HARDWOOD_BANDING_PLY_3_4
     # SHELF_BANDING_THICKNESS: Thickness of a thin strip of material
     # applied to the front edge of a shelf
@@ -20,7 +20,7 @@ class Config:
     COUNTER_HEIGHT: float = 36
     COUNTERTOP_THICKNESS: float = 1.5
     LOWERS_DEPTH: float = 24.
-    LOWERS_CASE_MATERIAL: Material = Material.PLY_3_4
+    LOWERS_CASE_MATERIAL: Material = Material.PLY_3_4_4x8
 
     # \/\/ Drawer specific parameters \/\/
     DRAWER_BOX_COLOR: str = '#e6cd83'
@@ -28,7 +28,7 @@ class Config:
 
     # \/\/ Door and drawer parameters \/\/
     FRAMED_PANEL_INSET_COLOR: str = '#e6cd83'
-    FRAMED_PANEL_INSET_MATERIAL = Material.PLY_1_4
+    FRAMED_PANEL_INSET_MATERIAL = Material.PLY_1_4_LITERAL_4x8
     # OVERLAY_GAP = Gap between door and drawer face elements
     OVERLAY_GAP: float = 1/4
 
@@ -39,7 +39,7 @@ class Config:
     CROWN_SPACE_HEIGHT: float = 3.
     COUNTER_TO_UPPERS_GAP: float = 18
     UPPERS_DEPTH: float = 12.
-    UPPERS_CASE_MATERIAL: Material = Material.PLY_3_4
+    UPPERS_CASE_MATERIAL: Material = Material.PLY_3_4_4x8
     UPPERS_HEIGHT: float = (CEILING_HEIGHT - (
                             CROWN_SPACE_HEIGHT
                             + COUNTER_TO_UPPERS_GAP
