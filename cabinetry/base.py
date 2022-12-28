@@ -262,7 +262,8 @@ def _point_click_callback(point):
     print(f"len pt list = {len(PT_LIST)}")
     if len(PT_LIST) == 2:
         dist = np.linalg.norm(PT_LIST[1] - PT_LIST[0])
-        distMsg = f", dist to prev pt = {dist}"
+        dXYZ = np.array(PT_LIST[1]) - np.array(PT_LIST[0])
+        distMsg = f", dist to prev pt = {dist}, {dXYZ=}"
         _PointGetter.reset_point_list()
     print(f"picked point: {point}{distMsg}")
 
