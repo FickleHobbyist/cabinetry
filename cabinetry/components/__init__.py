@@ -79,6 +79,37 @@ class RectangularComponent(RenderTree, Poseable):
         return box
 
 
+class PvArrow(RenderTree, Poseable):
+    def __init__(self,
+                 direction: tuple[float],
+                 *args, **kwargs) -> None:
+        self.direction = direction
+        super().__init__(*args, **kwargs)
+
+    def get_pv_mesh(self) -> pv.PolyData:
+        M = self.get_frame_to_base()
+        arrow = pv.Arrow(direction=self.direction)
+        arrow.transform(M)
+        return arrow
+
+
+class PvAxes(ComponentContainer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.add_child(PvArrow(
+            direction=(1, 0, 0),
+            color='red',
+        ))
+        self.add_child(PvArrow(
+            direction=(0, 1, 0),
+            color='green',
+        ))
+        self.add_child(PvArrow(
+            direction=(0, 0, 1),
+            color='blue',
+        ))
+
+
 @dataclass(init=True, repr=True)
 class GridRowOrCol():
     size_type: str = 'weighted'
