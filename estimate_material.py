@@ -30,10 +30,12 @@ def component_keyfunc(cmp):
     return cmp.material.name
 
 def component_dict_serializer(cmp):
+    long_dim = max(cmp.width, cmp.height)
+    short_dim = min(cmp.width, cmp.height)
     return {
         'name': cmp.name,
-        'width': cmp.width,
-        'height': cmp.height,
+        'width': long_dim,
+        'height': short_dim,
         'thickness': cmp.material.thickness,
         'area': cmp.area,
         'volume': cmp.volume,
